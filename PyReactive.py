@@ -90,6 +90,7 @@ class Subscribe:
 		#	print(args)
 
 		self.id = uuid.uuid4()
+		cascadeEffect[self] = []
 
 		_observable[self] = self.id
 		for i in self.variablesToObserve:
@@ -135,7 +136,9 @@ class Subscribe:
 		self.value = alteredList[0]		#Assign the last remaining value as the value of the expression
 		#print(self.value)
 
-
+		if len(cascadeEffect[self]) != 0:
+			for i in cascadeEffect[self]:
+				Subscribe.update(i)
 
 
 
