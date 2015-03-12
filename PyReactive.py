@@ -36,7 +36,9 @@ class Observe:
 				continue
 		if type(temp) is Subscribe:
 			#Write the code for observing a Subscription.
-			pass
+			while type(temp) is Subscribe:
+				temp = temp.value
+				continue
 		return temp
 	
 	def update(self, value):
