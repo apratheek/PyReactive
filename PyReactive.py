@@ -142,7 +142,18 @@ class Subscribe:
 
 
 
-
+	def equation(self):
+		"""Returns the current equation of the subscription"""
+		equationString = ''
+		for i in range(len(self.variablesToObserve)):
+			if i < len(self.OperatorsList):
+				operatorEqn = self.OperatorsList[i]
+			else:
+				operatorEqn = ''
+			
+			equationString += str(self.variablesToObserve[i].get()) + operatorEqn		#Instead of using .get(), use self.variablesToObserve.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
+		self.equation = equationString
+		return self.equation
 
 
 
