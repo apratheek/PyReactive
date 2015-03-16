@@ -23,7 +23,7 @@ class Observe:
 		"""Initializes the observable. Also assigns a UUID"""
 		self.id = uuid.uuid4()
 		self.value = value
-		print("Value is %s"%self.value)
+		#print("Value is %s"%self.value)
 		_observable[self] = self.id
 		cascadeEffect[self] = []
 		if type(name) is str:
@@ -62,6 +62,7 @@ class Subscribe:
 	global _observable, _depends_on, cascadeEffect
 	def __init__(self, name = '', **args):
 		"""Initializes the subscription. Compulsory arguments are var and op, where var is a tuple of variables that need to be subscribed to and op is the tuple of operands that operate upon the variables. v0.0.1 would only work for binary operators."""
+		#print("args are %s"%args)
 		try:
 			self.variablesToObserve = list(args['var'])
 
@@ -84,7 +85,7 @@ class Subscribe:
 					#Case when the variable is an observable, except that it hasn't been declared in the local scope
 				#	raise InvalidSubscriptionError("Not a local observable. Initialize the observable first")
 				varId = _observable[var]
-				print("Variable UUID is %s"%varId)
+				#print("Variable UUID is %s"%varId)
 			except:
 				#Case when the variable passed isn't an observable
 				raise InvalidSubscriptionError("Variable not an observable. Declare the variable as an observable before subscribing to it")
@@ -126,7 +127,7 @@ class Subscribe:
 
 		OperatorsSet = createSetInPrecedence(self.OperatorsList)		#Generates the set of all operators, and hence, this is unique. Also, the set has the operators according to their order of precedence, that is, the operator with the highest order of precedence will have a lower index.
 		OperatorsListCopy = self.OperatorsList[:]
-		print("The operators set in order of precedence is %s"%OperatorsSet)
+		#print("The operators set in order of precedence is %s"%OperatorsSet)
 		#Here, instead of simply shallow copying the variablesToObserve list, copy the return values of every item with the .get() method. This would mean that only the latest values of the observables are used, and also, further calculation would be easier.
 		alteredListCopy = self.variablesToObserve[:]
 		alteredList = []
@@ -135,9 +136,9 @@ class Subscribe:
 
 		for operator in OperatorsSet:
 			#Send the list of variables, current operator and OperatorsList to a calculatingFunction that evaluates
-			print("The operator in __init__ is %s"%operator)
+			#print("The operator in __init__ is %s"%operator)
 			alteredList = evaluateEquation(alteredList, operator, OperatorsListCopy)
-			print("The alteredList is %s"%alteredList)
+			#print("The alteredList is %s"%alteredList)
 
 		self.value = alteredList[0]		#Assign the last remaining value as the value of the expression
 		#print(self.value)
@@ -146,6 +147,10 @@ class Subscribe:
 			for i in cascadeEffect[self]:
 				Subscribe.update(i)
 
+		self.onchange()
+
+	def onchange(self):
+		pass
 
 
 	def equation(self):
@@ -164,8 +169,8 @@ class Subscribe:
 				nameOfVariable = self.variablesToObserve[i].name
 
 			equationString += ' ' + nameOfVariable + ' ' + operatorEqn		#Instead of using .get(), use self.variablesToObserve.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
-		self.equation = equationString
-		return self.equation
+		self.equationString = equationString
+		return self.equationString
 
 
 
@@ -181,25 +186,25 @@ def createSetInPrecedence(OperatorsList):
 	#Check for all operators here. In future, this can accomodate more operators
 	if '**' in OperatorsList:
 		newOperatorList.append('**')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	if '*' in OperatorsList:
 		newOperatorList.append('*')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	if '/' in OperatorsList:
 		newOperatorList.append('/')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	if '%' in OperatorsList:
 		newOperatorList.append('%')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	if '//' in OperatorsList:
 		newOperatorList.append('//')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	if '+' in OperatorsList:
 		newOperatorList.append('+')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	if '-' in OperatorsList:
 		newOperatorList.append('-')
-		print("newOperatorList is %s"%newOperatorList)
+		#print("newOperatorList is %s"%newOperatorList)
 	return(newOperatorList)				#Returns the set of operators in the order of precedence
 
 
@@ -228,7 +233,7 @@ def evaluateEquation(alteredList, operator, OperatorsList):
 		alteredList.insert(locOperator, resultant)		#Insert the resultant at the location where the two operands have been removed
 		OperatorsList.remove(operator)					#Also remove the operator, since it has been evaluated
 
-		print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
+		#print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
 		locOperator += 1		#Increase the location index so as to find the next location of the current operator
 	return alteredList
 
@@ -236,7 +241,7 @@ def evaluateEquation(alteredList, operator, OperatorsList):
 
 def evaluateExpression(firstOperand, secondOperand, operator):
 	#Check for the apposite operator, perform the operation nad return the result
-	print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
+	#print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
 	
 	if len(operator) == 2:
 		operator = operator[:]
@@ -260,7 +265,7 @@ def evaluateExpression(firstOperand, secondOperand, operator):
 			raise TypeError("No %s operator found"%operator)
 	finally:
 
-		print("Result in evaluateExpression is %s"%result)
+		#print("Result in evaluateExpression is %s"%result)
 		return result
 
 
