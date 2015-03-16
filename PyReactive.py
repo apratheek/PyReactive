@@ -120,8 +120,6 @@ class Subscribe:
 
 		#REWORK: CREATE A SET OF ALL OPERATORS AND LOOP THROUGH EACH OPERATOR. FOR EVERY OPERATOR, COUNT THE NUMBER OF TIMES OF OCCURRENCE, AND EVALUATE THE APPROPRIATE OPERANDS
 
-		
-
 	def update(self):
 		"""This method needs to be hidden. Can only be called by Observables when there's an update in their values."""
 
@@ -171,10 +169,6 @@ class Subscribe:
 			equationString += ' ' + nameOfVariable + ' ' + operatorEqn		#Instead of using .get(), use self.variablesToObserve.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
 		self.equationString = equationString
 		return self.equationString
-
-
-
-
 
 	def get(self):
 		"""Retrieve the latest value of the subscription"""
@@ -268,29 +262,10 @@ def evaluateExpression(firstOperand, secondOperand, operator):
 		#print("Result in evaluateExpression is %s"%result)
 		return result
 
-
-
-
-
-
-
-
-
-
 """To Do: 
 			Check		1. On subscription success, i.e., after all the variables are vetted, add an entry to the dictionary with the key being the UUID of the subscribing variable and the values being the UUIDs of the subscibed variables. TL; DR: Update the _depends_on dict
 			Check		2. When an observable is UPDATED, issue a cascade effect that translates into the updation of all the Subscibing variables. The code for this needs to be written in the update() method of the Observe class 
-			Check			3. Complete writing code for the method evaluateEquation looking at the comments
-			4. Write code for Observing a Subscription
-			5. Write a get() method inside the Subscribe class
-			6. Modify the alteredList to hold the .get() values instead of a shallow copy of the variablesToObserve list. This also implies that every variable inside the list has a .get() method"""
-
-
-
-
-
-
-
-
-"""Hold all the current values in a dictionary. Whenever there's an update in the value, instead of returning the value directly, update the value in this dictionary, and retrieve the value from the dictionary.
-	This would mean that always, the current values will be in a dictionary, and when there's a simple get issued, search for the corresponding value and push it."""
+			Check		3. Complete writing code for the method evaluateEquation looking at the comments
+			Check 		4. Write code for Observing a Subscription
+			Check 		5. Write a get() method inside the Subscribe class
+			Check 		6. Modify the alteredList to hold the .get() values instead of a shallow copy of the variablesToObserve list. This also implies that every variable inside the list has a .get() method"""
