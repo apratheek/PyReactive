@@ -19,12 +19,17 @@ class Observe:
 	"""Deals with all observables/properties."""
 	
 	global _observable, _depends_on, cascadeEffect
-	def __init__(self, value):
+	def __init__(self, value, name=''):
 		"""Initializes the observable. Also assigns a UUID"""
 		self.id = uuid.uuid4()
 		self.value = value
+		print("Value is %s"%self.value)
 		_observable[self] = self.id
 		cascadeEffect[self] = []
+		if type(name) is str:
+			self.name = name
+		else:
+			raise TypeError("Name has to be a string.")
 		#print("%s"%_observable)
 
 	def get(self):
@@ -55,7 +60,7 @@ class Subscribe:
 	"""Deals with the subscription of observables/properties."""
 
 	global _observable, _depends_on, cascadeEffect
-	def __init__(self, **args):
+	def __init__(self, name = '', **args):
 		"""Initializes the subscription. Compulsory arguments are var and op, where var is a tuple of variables that need to be subscribed to and op is the tuple of operands that operate upon the variables. v0.0.1 would only work for binary operators."""
 		try:
 			self.variablesToObserve = list(args['var'])
@@ -93,6 +98,7 @@ class Subscribe:
 		cascadeEffect[self] = []
 
 		_observable[self] = self.id
+		self.name = name
 		for i in self.variablesToObserve:
 			cascadeEffect[i].append(self)
 		self.update()
@@ -145,13 +151,19 @@ class Subscribe:
 	def equation(self):
 		"""Returns the current equation of the subscription"""
 		equationString = ''
+		if self.name != '':
+			equationString = self.name + ' ='
 		for i in range(len(self.variablesToObserve)):
 			if i < len(self.OperatorsList):
 				operatorEqn = self.OperatorsList[i]
 			else:
 				operatorEqn = ''
-			
-			equationString += str(self.variablesToObserve[i].get()) + operatorEqn		#Instead of using .get(), use self.variablesToObserve.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
+			if self.variablesToObserve[i].name == '':		#Case when name hasn't been defined
+				nameOfVariable = str(self.variablesToObserve[i].get())
+			else:
+				nameOfVariable = self.variablesToObserve[i].name
+
+			equationString += ' ' + nameOfVariable + ' ' + operatorEqn		#Instead of using .get(), use self.variablesToObserve.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
 		self.equation = equationString
 		return self.equation
 
