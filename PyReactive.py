@@ -10,6 +10,9 @@ import uuid
 _observable = {}
 _depends_on = {}
 cascadeEffect = {}
+observerMethodAvailability = {list: ['sort','max','min','count','set'], str: ['split','set','list'] }	#Add other methods here as needed
+
+subscribeMethodAvailability = {set: ['union','intersection','difference','symmetric_difference','list']}
 
 class InvalidSubscriptionError(Exception):
 	"""Special Exception that inherits from Base Exception class. Does nothing but raise a relevant exception"""
@@ -19,10 +22,36 @@ class Observe:
 	"""Deals with all observables/properties."""
 	
 	global _observable, _depends_on, cascadeEffect
-	def __init__(self, value, name=''):
+	def __init__(self, value, name='', method=''):		#Need to alter the list of parameters to include the argument for methods such as count, split, etc. 
 		"""Initializes the observable. Also assigns a UUID"""
 		self.id = uuid.uuid4()
 		self.value = value
+		self.method = method		#Declare a blank initially, so that after the first get(), we'll get to know about the typeOfGet, after which we'll know if the method argument can be performed on the data type. Otherwise, we'll raise an exception
+		self.typeOfGet = ''
+		localGet = self.get()
+		self.typeOfGet = type(localGet)
+		#Handle type check here, which means, check if self is a list, set, dict, tuple, or any other data type and check for the availability of the corresponding method
+		if method is not '':
+			if self.typeOfGet is list:
+				if method in observerMethodAvailability[self.typeOfGet]:
+					self.method = method
+				else:
+					raise AttributeError("'%s' object has no attribute '%s'"%(self.typeOfGet, method))
+			elif self.typeOfGet is str:
+				if method in observerMethodAvailability[typeOfGet]:
+					self.method = method
+				else:
+					raise AttributeError("'%s' object has no attribute '%s'"%(self.typeOfGet, method))
+			#elif typeOfGet is set:
+			#	if method in observerMethodAvailability[typeOfGet]:
+			#		self.method = method
+			#	else:
+			#		raise AttributeError("'%s' object has no attribute '%s'"%(typeOfGet, method))
+
+		#This else block is pretty much redundant
+		else:
+			self.method = method 		#The assigned method would be a blank string
+
 		#print("Value is %s"%self.value)
 		_observable[self] = self.id
 		cascadeEffect[self] = []
@@ -35,6 +64,7 @@ class Observe:
 	def get(self):
 		"""Returns the current value of the variable"""
 		temp = self.value
+		
 		if type(temp) is Observe:
 			while type(temp) is Observe:
 				temp = temp.value
@@ -44,6 +74,36 @@ class Observe:
 			while type(temp) is Subscribe:
 				temp = temp.value
 				continue
+		
+		#Perform the method application at this level, so that the resultant value will always be in sync with the associated method
+		#To remove the computation during the initialization, since the get() method is being called even during __init__, we could use a counter variable that counts the number of times the get() method is called. In other words, if the counter variable's value is 1, do not call the following block of statements, and if it's greater than 1, call the block. This reduced the __init__ time.
+		if self.typeOfGet is list:
+			#The self.method is not '' if statement is redundant, but is being used because more often than not, if there's no method initialised, the program would need to parse the entire if-else block to realise the case for when there's no method defined. A workaround for this is by placing the if case for the condition where there's no method right up as the first check, and the remaining would be overlooked. This might turn out to be efficient
+			if self.method is not '':
+				if self.method is 'sort':
+					temp = sorted(temp)
+				elif self.method is 'max':
+					temp = max(temp)
+				elif self.method is 'min':
+					temp = min(temp)
+				elif self.method is 'count':
+					pass
+					#Need to receive an additional parameter while initialising in case the count method is used
+				elif self.method is 'set':
+					temp = set(temp)
+
+		elif self.typeOfGet is str:
+			if self.method is not '':
+				if self.method is 'split':
+					pass
+					#Need additional parameters while initialising
+				elif self.method is 'set':
+					temp = set(temp)
+				elif self.method is 'list':
+					temp = list(temp)
+
+		#elif self.typeOfGet is set:
+
 		return temp
 	
 	def update(self, value):
