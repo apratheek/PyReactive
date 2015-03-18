@@ -106,14 +106,37 @@ class Observe:
 
 		return temp
 	
-	def update(self, value):
+	def update(self, value=''):
 		"""Updates the value of the variable"""
-		self.value = value
+		if value is not '':
+			self.value = value
 		#Whenever an update of a variable occurs, this update needs to cascade into an updation of the value of the subscripted variable that depends on it. And this could be done by maintaining a cascadeList.
 		#Cascade the effect on to the subscription.
 		if len(cascadeEffect[self]) != 0:
 			for i in cascadeEffect[self]:
 				Subscribe.update(i)
+
+	def append(self, value):
+		"""Append an element to an iterable such as a list/dict/set"""
+		if self.typeOfGet is list:
+			#print("self.get() is %s"%self.get())
+			localVal = self.get()
+			localVal.append(value)
+			self.value = localVal[:]
+
+		elif self.typeOfGet is set:
+			localVal = self.get()
+			localVal.update(value)
+			self.value = localVal.copy()
+
+		elif self.typeOfGet is dict:
+			localVal = self.get()
+			localVal.update(value)
+			self.value = localVal.copy()
+		
+		self.update()
+
+
 
 
 class Subscribe:
@@ -180,6 +203,35 @@ class Subscribe:
 
 		#REWORK: CREATE A SET OF ALL OPERATORS AND LOOP THROUGH EACH OPERATOR. FOR EVERY OPERATOR, COUNT THE NUMBER OF TIMES OF OCCURRENCE, AND EVALUATE THE APPROPRIATE OPERANDS
 
+	def append(self, **args):
+		"""Append a new operand and corresponding operator to the equation"""
+		try:
+			self.variablesToObserve += list(args['var'])
+
+			self.OperatorsList += list(args['op'])
+			#_depends_on[self] = {}
+			secondOperatorsList = self.OperatorsList[:]
+		except:
+			raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
+
+		for var in self.variablesToObserve:
+			#Checking if the received variable is a predefined observable
+			try:
+				#variableId = var.id
+				#if variableId not in _observable:
+					#Case when the variable is an observable, except that it hasn't been declared in the local scope
+				#	raise InvalidSubscriptionError("Not a local observable. Initialize the observable first")
+				varId = _observable[var]
+				#print("Variable UUID is %s"%varId)
+			except:
+				#Case when the variable passed isn't an observable
+				raise InvalidSubscriptionError("Variable not an observable. Declare the variable as an observable before subscribing to it")
+		if len(self.variablesToObserve)-1 != len(self.OperatorsList):
+			raise InvalidSubscriptionError("Can't initialize subscription. The number of variables should always be equal to the number of operands")
+
+		self.update()
+
+	
 	def update(self):
 		"""This method needs to be hidden. Can only be called by Observables when there's an update in their values."""
 
@@ -234,6 +286,8 @@ class Subscribe:
 		"""Retrieve the latest value of the subscription"""
 		return self.value
 
+	
+
 
 def createSetInPrecedence(OperatorsList):
 	newOperatorList = []
@@ -266,6 +320,9 @@ def evaluateEquation(alteredList, operator, OperatorsList):
 	count = OperatorsList.count(operator)
 	locOperator = 0
 	for i in range(count):
+		print("Count value is %s"%i)
+		print("locOperator is %s"%locOperator)
+		print("OperatorsList is %s"%OperatorsList)
 		locOperator = OperatorsList.index(operator, locOperator)
 		#Found the index of the operator. Now, find the corresponding 2 variables in variablesToObserve and perform the operation
 		#Perform the evaluation of variablesToObserve[locOperator]-'operator'-variablesToObserve[locOperator+1] here, and replace the two variables with the evaluated result at the location - 'locOperator'
@@ -288,7 +345,7 @@ def evaluateEquation(alteredList, operator, OperatorsList):
 		OperatorsList.remove(operator)					#Also remove the operator, since it has been evaluated
 
 		#print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
-		locOperator += 1		#Increase the location index so as to find the next location of the current operator
+		#locOperator += 1		#Increase the location index so as to find the next location of the current operator
 	return alteredList
 
 
