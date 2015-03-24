@@ -56,7 +56,20 @@ Subscriptions -----> Subscriptions are mutable objects that depend on other muta
                         ------------------      2-way dependency     -------------
                         |  Subscription  |   <-------------------->  |  Mutable  |
                         ------------------                           -------------
-
-
+                                ^                                          ^
+                                |                                          |
+                                | 2-way dependency        2-way dependency |
+                                |                                          |
+                                |        ----------------                  |
+                                -------> |  Observable  |  <----------------
+                                         ----------------
+                                                |
+                                                |
+                                                | 1-way dependency
+                                                |
+                                                v
+                                          -------------
+                                          | Immutable |
+                                          -------------
 
 
