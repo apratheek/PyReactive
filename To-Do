@@ -40,3 +40,23 @@ Strip down the functionality of each get() by allowing it to only return the cur
 
 
 ***************************************************************************************************************************
+
+Mutable Objects: List, Dict, Set, ByteArray ------ Have default methods that can be overridden to create a cascading effect on the variables that depend on them
+Immutable Objects: Int, Float, Complex, String, Tuple, Frozen Set, Bytes ------ Makes no sense in subclassing them since that would open up a pandora's box of errors. Instead, define these as Observables
+
+
+Observables -----> Observables are mutable objects with a dependency on either a Mutable Object (although mutable objects in the sense of their definition are themselves Observables, but by doing this, we can ensure that the API is consistent), a special method defined over a Mutable Object (such as sort, count, etc.), or over an Immutable Object
+            -----> When a Mutable Object changes, the Observable depending on it automatically changes. If an Observable is manually updated, and if it depends on a Mutable Object, then the underlying mutable object also needs to change (Although AFAIK, this should be done automatically since the replacement would be in-place).
+
+Subscriptions -----> Subscriptions are mutable objects that depend on other mutable objects and/or Observables, with one or more operands.
+              -----> Extend the operators by having a provision to override a method so that user-defined operators could be used too. For eg.: In case the user wants to denote an integral as '***', have the provision to do this.
+              
+              The dependency graph is as follows:
+              
+                        ------------------      2-way dependency     -------------
+                        |  Subscription  |   <-------------------->  |  Mutable  |
+                        ------------------                           -------------
+
+
+
+
