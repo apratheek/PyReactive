@@ -38,6 +38,14 @@ class List(list):
 			Raises ValueError if the value is not present."""
 		super(List, self).remove(value)
 
+	def __setitem__(self, key, value):
+		#print("Set key:%s and value:%s"%(key,value))
+		super(List, self).__setitem__(key, value)
+
+	def __delitem__(self, key):
+		#print("Deleted key:%s"%key)
+		super(List, self).__delitem__(key)
+
 	#**************************************************************************************************
 	#Reverse isn't required, because this will be an Observable
 	#**************************************************************************************************
@@ -93,15 +101,51 @@ class Tuple(tuple):
 
 class Int(int):
 	#Can't subclass int, and int objects are immutable. Similar will be the case with strings and tuples
-	pass
-	#def modify(self, value):
+	#pass
+	def modify(self, value):
 		#value = Int(value)
+		
+		
+		self = Int(value)
+		self.__new__(Int, self)
+		#print(self)
+		#print("self is "%self)
+		
 	#	print("Self is %s"%self)
 		
 	#	return(super(Int, self).__new__(Int ,value-self))
 		#super(Int, self).__new__(self, value)
 	
-	#def __new__(cls, *args, **kwargs):
-	#	return super(Int, cls).__new__(cls, 5)
+	def __new__(cls, *args, **kwargs):
+		#print("cls is %s args is %s"%(cls, args))
+		return super(Int, cls).__new__(cls, *args)
 	#def __init__(self, value):
 	#	super(Int, self).__init__(value)
+
+class Dict(dict):
+	def clear(self):
+		super(Dict, self).clear()
+		
+
+
+	def pop(self, key):
+		return super(Dict, self).pop(key)
+		
+
+	def popitem(self):
+		return super(Dict, self).popitem()
+
+	def update(self, anotherDict):
+		super(Dict, self).update(anotherDict)
+		
+
+	def __setitem__(self, key, value):
+		print("Set key:%s and value:%s"%(key,value))
+		super(Dict, self).__setitem__(key, value)
+
+	def __delitem__(self, key):
+		print("Deleted key:%s"%key)
+		super(Dict, self).__delitem__(key)
+
+
+	#Override [] for dictionary and bytearray
