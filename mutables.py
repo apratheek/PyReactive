@@ -1,3 +1,5 @@
+"""Module that consists of overridden default mutable datatypes"""
+
 class List(list):
 	
 	"""List() -> new empty list
