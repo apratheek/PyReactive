@@ -73,3 +73,6 @@ Subscriptions -----> Subscriptions are mutable objects that depend on other muta
                                           -------------
 
 
+
+
+NOTE: ListB(ListA) works only by defining ListB as a copy of ListA. Hence, any further changes on ListA wouldn't affect ListB and vice versa. In case we need to observe a List, use the Observable API, since an Observable would fit the bill more appropriately.
