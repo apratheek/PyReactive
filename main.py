@@ -94,7 +94,7 @@ class Observable:
 				#This is acceptable too, but try to ouput a message that the underlying values will now be frozen since they cannot be updated.
 				self.value = dependency 						#Again, the value can directly be assigned as the dependency, since the dependency is mutable, but frozen --> effectively, it behaves like an immutable. It acts as a beefed up Observable that has lost all its progenitors' superpowers.
 			elif isinstance(dependency, (Observable, Subscribe)):
-				#Write code to set self.value when the dependency is an observable or a subscription
+				#Write code to set self.value when the dependency is an observable or a subscription. As it turns out, this case can be completely eliminated, since an Observable or a Subscription can't be absent in the idVariableDict in the first place.
 				pass
 		############################################################
 
@@ -105,7 +105,7 @@ class Observable:
 
 	def update(self):
 		"""Sets the value of the Observable every time this is called. It is called at __init__ and at every time that the underlying dependency changes. If the underlying dependency is a native mutable or a native immutable, this method won't be called. This is only called when the dependency belongs to BDLS"""
-		self.value = self.dependency
+		self.value = self.dependency			#This dependency can be taken up to the first "try" case itself and this update method can be entirely removed.
 		#while isinstance(localValue, (ByteArray, Dict, List, Set)):			#Case where the underlying dependency belongs to BDLS
 		#	localValue = localValue
 		print("Calling update method of Observable")
@@ -117,10 +117,10 @@ class Observable:
 		for element in dependencyGraph[self.id]:
 			element.update()
 
-	def onchange(self):
+	def onchange(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
 		print("Observable changed and value is %s"%self.value)
 
-	def __repr__(self):
+	def __repr__(self):			#This is the killer method! Without this, my life and architecture would've been ludicrously tough. Is this the golden bullet?
 		return("%s"%self.value)
 
 class Subscribe:
