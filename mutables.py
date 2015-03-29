@@ -132,13 +132,13 @@ class Tuple(tuple):
 
 class Int(int):
 	#Can't subclass int, and int objects are immutable. Similar will be the case with strings and tuples
-	#pass
-	def modify(self, value):
+	pass
+	#def modify(self, value):
 		#value = Int(value)
 		
 		
-		self = Int(value)
-		self.__new__(Int, self)
+	#	self = Int(value)
+	#	self.__new__(Int, self)
 		#print(self)
 		#print("self is "%self)
 		
@@ -147,9 +147,9 @@ class Int(int):
 	#	return(super(Int, self).__new__(Int ,value-self))
 		#super(Int, self).__new__(self, value)
 	
-	def __new__(cls, *args, **kwargs):
+	#def __new__(cls, *args, **kwargs):
 		#print("cls is %s args is %s"%(cls, args))
-		print(super(Int, cls).__new__(cls, *args))
+	#	print(super(Int, cls).__new__(cls, *args))
 	#def __init__(self, value):
 	#	super(Int, self).__init__(value)
 
