@@ -87,7 +87,7 @@ class Observe:
 				#Corresponding code
 				
 				self.method = method
-				self.value = self.dependency			#This dependency can be taken up to the first "try" case itself and this update method can be entirely removed.
+				#self.value = self.dependency			#This dependency can be taken up to the first "try" case itself and this update method can be entirely removed.
 				print("Setting dependencyGraph attribute")
 				dependencyGraph[dependency.id].append(self.id)				################################### Key assignment. This is where the actual dependency is stated.
 				dependencyGraph[self.id] = []
