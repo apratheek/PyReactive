@@ -77,8 +77,8 @@ class Observe:
 		idVariableDict[self.id] = self
 		self.dependency = dependency 					#Setting up the dependency of the Observable to the passed variable
 		self.underlyingValue = dependency
-		if isinstance(self.underlyingValue, (Observe, Subscribe)):
-			self.underlyingValue = self.dependency.value
+		#if isinstance(self.underlyingValue, (Observe, Subscribe)):
+		#	self.underlyingValue = self.dependency.value
 
 		#This following block can be rewritten to save on redundant conditions
 		############################################################
@@ -127,7 +127,7 @@ class Observe:
 		
 		if isinstance(self.underlyingValue, Observe):			#This is the case when there's an Observable, and it needs to be distilled down to either 
 			print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
-			self.underlyingValue = self.dependency.value
+			self.underlyingValue = self.dependency.value 		#This is done so as to assign the underlyingValue to dependency.value --> this would mean that currently, the underlyingValue is modified to be a List object rather than an Observe object. For further clarification, in the interpreter, check the values of type(self.underlyingValue) and type(self.dependency.value). The former yields an Observe and the latter yields a BDLS. This is so that the further actions can be operated on BDLS, rather than on the Observable, since an Observable does not have the necessary methods that a BDLS has.
 
 		########################## WRITE CODE FOR HANDLING METHOD ATTRIBUTE HERE
 
@@ -189,13 +189,20 @@ class Observe:
 		
 		for element in dependencyGraph[self.id]:
 			idVariableDict[element].update()
-		self.underlyingValue = self.dependency 			#Restore underlyingValue to its original value, after it has been distilled (in case of Observables)
+		self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
 
 	def onchange(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
 		print("Observable changed and value is %s"%self.value)
 
 	def __repr__(self):			#This is the killer method! Without this, my life and architecture would've been ludicrously tough. Is this the golden bullet?
 		return("%s"%self.value)
+
+	def modifyMethod(self, method=''):
+		if method is '':
+			self.method = self.method
+		else:
+			self.method = method
+		self.update()
 
 class Subscribe:
 	pass
