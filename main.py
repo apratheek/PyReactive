@@ -134,7 +134,7 @@ class Observe:
 		if isinstance(self.underlyingValue, List):
 			print("isinstance List true, hence entered this if-block")
 			#Handle the methods of List
-			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'sliced']:
+			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'sliced', 'set']:
 				#Found self.method in the defined additional method for List
 				if self.method is 'count':
 					self.value = self.underlyingValue.count(self.methodParameter)	#Count the occurrences of self.methodParameter in the underlyingValue
@@ -144,8 +144,8 @@ class Observe:
 					self.value = List(temp[:])
 					del temp
 				elif self.method is 'sort':
-					temp = self.underlyingValue[:]
-					temp.sort()					#Next update, take a key for sort too
+					temp = self.underlyingValue[:]						#Could also use the builtin sorted method
+					temp.sort(key=self.methodParameter)					#Next update, take a key for sort too
 					self.value = List(temp[:])
 					del temp
 				elif self.method is 'lastel':
@@ -159,6 +159,13 @@ class Observe:
 					temp = self.underlyingValue[0]
 					self.value = temp
 					del temp
+				elif self.method is 'set':
+					print("self.underlyingValue is %s"%self.underlyingValue)
+					temp = self.underlyingValue[:]
+					temp = set(temp)
+					self.value = temp
+					del temp
+
 				else:		#Case when self.method is sliced
 					pass   ########################################################################################################################################
 			elif self.method is '':
@@ -197,11 +204,13 @@ class Observe:
 	def __repr__(self):			#This is the killer method! Without this, my life and architecture would've been ludicrously tough. Is this the golden bullet?
 		return("%s"%self.value)
 
-	def modifyMethod(self, method=''):
+	def modifyMethod(self, method='', methodParameter=None):
 		if method is '':
 			self.method = self.method
+			#self.methodParameter =
 		else:
 			self.method = method
+		self.methodParameter = methodParameter
 		self.update()
 
 class Subscribe:
