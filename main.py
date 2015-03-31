@@ -137,7 +137,10 @@ class Observe:
 			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'sliced', 'set']:
 				#Found self.method in the defined additional method for List
 				if self.method is 'count':
-					self.value = self.underlyingValue.count(self.methodParameter)	#Count the occurrences of self.methodParameter in the underlyingValue
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't count None. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.count(self.methodParameter)	#Count the occurrences of self.methodParameter in the underlyingValue
 				elif self.method is 'reverse':
 					temp = self.underlyingValue[:]
 					temp.reverse()
@@ -175,10 +178,18 @@ class Observe:
 				raise InvalidSubscriptionError("List object doesn't have %s as the method parameter"%self.method)
 
 		elif isinstance(self.underlyingValue, Set):
-			pass
+			print("There's nothing to Observe in a Set")
 
 		elif isinstance(self.underlyingValue, Dict):
-			pass
+			print("isinstance Dict is true, hence entered the Corresponding if-block")
+			if self.method in ['key']:				#Keep this so that it can be extended easily to acoomodate other methods in the future
+				if self.method is 'key':
+					if self.methodParameter is None:
+						raise InvalidSubscriptionError("Can't observe a Dict with key as None")
+					else:		#Case when self.methodParameter is not None
+						self.value = self.underlyingValue[self.methodParameter]
+						#In case self.methodParameter is not a valid key, Python will automatically throw the relevant KeyError. We don't need to handle.
+
 		elif isinstance(self.underlyingValue, ByteArray):
 			pass
 		##########################
