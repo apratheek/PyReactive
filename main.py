@@ -70,6 +70,27 @@ class InvalidSubscriptionError(Exception):
 
 class Observe:
 	"""Deals with all observables"""
+	"""Takes the dependency, an optional name for the object, an optional method, and an optional method parameter. 
+		The optional methods are:
+		
+		1. In case of List
+			a) count - holds the count of the element passed as the methodParameter
+			b) reverse - holds the reverse of the List. methodParameter is invalid
+			c) lastel - always holds the last element of the List. methodParameter is invalid
+			d) firstel - always holds the first element of the list. methodParameter is invalid
+			e) sort - always holds the sorted List. methodParameter could be the sort key
+			f) slice - always holds the sliced part of the List. methodParamter is only a slice object, e.g. methodParameter = slice(0, x, y)
+			g) set - always holds the unique elements in the List. methodParameter is invalid
+		
+		2. In case of Set
+			As of this version, there's nothing to Observe. Could be used for future expansion
+
+		3. In case of Dict
+			a) key - holds the current value of the key. methodParameter is one of the keys of the Dict
+
+		4. In case of ByteArray
+			Need to add documentation for this
+			"""
 	def __init__(self, dependency, name='', method='', methodParameter=None):
 		self.id = uuid.uuid4()									#Using ids because without them, in case of unhashable data types such as Lists, we cannot create the dependencyGraph. Hence, uuids to the rescue
 		self.name = name
@@ -134,7 +155,7 @@ class Observe:
 		if isinstance(self.underlyingValue, List):
 			print("isinstance List true, hence entered this if-block")
 			#Handle the methods of List
-			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'sliced', 'set']:
+			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'slice', 'set']:
 				#Found self.method in the defined additional method for List
 				if self.method is 'count':
 					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
@@ -169,8 +190,10 @@ class Observe:
 					self.value = temp
 					del temp
 
-				else:		#Case when self.method is sliced
-					pass   ########################################################################################################################################
+				elif self.method is 'slice':
+					print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
+					self.value = self.underlyingValue[self.methodParameter]
+					   ########################################################################################################################################
 			elif self.method is '':
 				self.value = self.dependency
 
