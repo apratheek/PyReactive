@@ -69,8 +69,8 @@ class InvalidSubscriptionError(Exception):
 	pass
 
 class Observe:
-	"""Deals with all observables"""
-	"""Takes the dependency, an optional name for the object, an optional method, and an optional method parameter. 
+	"""Deals with all observables
+		Takes the dependency, an optional name for the object, an optional method, and an optional method parameter. 
 		The optional methods are:
 		
 		1. In case of List
