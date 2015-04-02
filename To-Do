@@ -76,3 +76,10 @@ Subscriptions -----> Subscriptions are mutable objects that depend on other muta
 
 
 NOTE: ListB(ListA) works only by defining ListB as a copy of ListA. Hence, any further changes on ListA wouldn't affect ListB and vice versa. In case we need to observe a List, use the Observable API, since an Observable would fit the bill more appropriately.
+
+
+Next update - Need to create provision for COMPOUND DATA TYPES such as
+a = List([1,4,2])
+b = Dict({ 1:a, 2:[3,4]})
+a.append(9)
+-----> 9 is appended is List a, and on printing b, the correct result is shown. But, the append method on a does not trigger the onchange method on b. This is understandable, since there is no real connection between List a and Dict b (as we haven't listed the connection in the dependencyGraph). This needs to be modified and also needs to be checked for Complex datatypes that compose of Dicts of Lists of Lists so that all such data types have a tangible link and are represented with the relationship in the dependencyGraph.
