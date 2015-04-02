@@ -233,12 +233,14 @@ class Observe:
 		self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
 
 	def onchange(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
+		"""This method is supposed to be overridden to perform anything of value whenever a change occurs"""
 		print("Observable changed and value is %s"%self.value)
 
 	def __repr__(self):			#This is the killer method! Without this, my life and architecture would've been ludicrously tough. Is this the golden bullet?
 		return("%s"%self.value)
 
 	def modifyMethod(self, method='', methodParameter=None):
+		"""This method takes a method name and an optional methodParameter so as to modify the Observe object to observe a variant of that particular data type. For e.g., an Observe object could initially be defined over a List object with method = 'sort'. Later, it can be modified to method='reverse' using this method."""
 		if method is '':
 			self.method = self.method
 			#self.methodParameter =
