@@ -15,11 +15,11 @@ class List(List):
 		super(List, self).__init__(args)
 		#At __init__, set up an entry in the dependencyGraph
 		
-		print(dependencyGraph)
-		#print("List initialised")
+		#print(dependencyGraph)
+		##print("List initialised")
 
 	def onchange(self):
-		print("List object has changed --> onchange method called")
+		#print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
 			idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
 
@@ -109,7 +109,7 @@ class Observe:
 				
 				self.method = method
 				#self.value = self.dependency			#This dependency can be taken up to the first "try" case itself and this update method can be entirely removed.
-				print("Setting dependencyGraph attribute")
+				#print("Setting dependencyGraph attribute")
 				dependencyGraph[dependency.id].append(self.id)				################################### Key assignment. This is where the actual dependency is stated.
 				dependencyGraph[self.id] = []
 				self.update()									#This sets self.value in the update method
@@ -121,6 +121,7 @@ class Observe:
 			self.value = self.dependency
 			if method is not '':
 				raise InvalidSubscriptionError("Can't have method parameter set for native data types")
+			dependencyGraph[self.id] = []
 			
 
 			#if isinstance(dependency, (int, str, tuple, bool, bytes, float, complex, frozenset)):
@@ -147,13 +148,13 @@ class Observe:
 		
 		
 		if isinstance(self.underlyingValue, Observe):			#This is the case when there's an Observable, and it needs to be distilled down to either 
-			print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
+			#print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
 			self.underlyingValue = self.dependency.value 		#This is done so as to assign the underlyingValue to dependency.value --> this would mean that currently, the underlyingValue is modified to be a List object rather than an Observe object. For further clarification, in the interpreter, check the values of type(self.underlyingValue) and type(self.dependency.value). The former yields an Observe and the latter yields a BDLS. This is so that the further actions can be operated on BDLS, rather than on the Observable, since an Observable does not have the necessary methods that a BDLS has.
 
 		########################## WRITE CODE FOR HANDLING METHOD ATTRIBUTE HERE
 
 		if isinstance(self.underlyingValue, List):
-			print("isinstance List true, hence entered this if-block")
+			#print("isinstance List true, hence entered this if-block")
 			#Handle the methods of List
 			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'slice', 'set']:
 				#Found self.method in the defined additional method for List
@@ -173,25 +174,25 @@ class Observe:
 					self.value = List(temp[:])
 					del temp
 				elif self.method is 'lastel':
-					print("self.underlyingValue is %s"%self.underlyingValue)
+					#print("self.underlyingValue is %s"%self.underlyingValue)
 					temp = self.underlyingValue[-1]
 					self.value = temp
 					del temp
 
 				elif self.method is 'firstel':
-					print("self.underlyingValue is %s"%self.underlyingValue)
+					#print("self.underlyingValue is %s"%self.underlyingValue)
 					temp = self.underlyingValue[0]
 					self.value = temp
 					del temp
 				elif self.method is 'set':
-					print("self.underlyingValue is %s"%self.underlyingValue)
+					#print("self.underlyingValue is %s"%self.underlyingValue)
 					temp = self.underlyingValue[:]
 					temp = set(temp)
 					self.value = temp
 					del temp
 
 				elif self.method is 'slice':
-					print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
+					#print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
 					self.value = self.underlyingValue[self.methodParameter]
 					   ########################################################################################################################################
 			elif self.method is '':
@@ -201,10 +202,10 @@ class Observe:
 				raise InvalidSubscriptionError("List object doesn't have %s as the method parameter"%self.method)
 
 		elif isinstance(self.underlyingValue, Set):
-			print("There's nothing to Observe in a Set")
+			#print("There's nothing to Observe in a Set")
 
 		elif isinstance(self.underlyingValue, Dict):
-			print("isinstance Dict is true, hence entered the Corresponding if-block")
+			#print("isinstance Dict is true, hence entered the Corresponding if-block")
 			if self.method in ['key']:				#Keep this so that it can be extended easily to acoomodate other methods in the future
 				if self.method is 'key':
 					if self.methodParameter is None:
@@ -221,7 +222,7 @@ class Observe:
 
 		#while isinstance(localValue, (ByteArray, Dict, List, Set)):			#Case where the underlying dependency belongs to BDLS
 		#	localValue = localValue
-		print("Calling update method of Observable")
+		#print("Calling update method of Observable")
 		
 		################ Check for type(self.dependency) here. If the type is List, then the methods are different, and if the type is Set, the methods are different. If the declared method isn't associated with the object, raise an Exception
 
@@ -234,7 +235,8 @@ class Observe:
 
 	def onchange(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
 		"""This method is supposed to be overridden to perform anything of value whenever a change occurs"""
-		print("Observable changed and value is %s"%self.value)
+		pass
+		#print("Observable changed and value is %s"%self.value)
 
 	def __repr__(self):			#This is the killer method! Without this, my life and architecture would've been ludicrously tough. Is this the golden bullet?
 		return("%s"%self.value)
@@ -250,4 +252,220 @@ class Observe:
 		self.update()
 
 class Subscribe:
-	pass
+	"""Deals with subscriptions of observables/mutables"""
+
+	def __init__(self, name='', **args):
+		"""Initialize the object with an optional name and variables and corresponding operators. e.g., Subscribe(var=(a,b), op=('+',)). Need a minimum of 2 operands and 1 operator. Unary operators are handled in the case of Observe objects."""
+		try:
+			self.variablesSubscribedTo = list(args['var'])
+			self.operatorsList = list(args['op'])
+		except:
+			raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
+
+		for var in self.variablesSubscribedTo:
+			try:
+				if var.id not in idVariableDict:		#if var.id is available but it is not in the dependencyGraph..this is the case when a foreign object might have a parameter called 'id'
+					raise InvalidSubscriptionError("Can't subscribe to a foreign object. Subscribe only supports ByteArray, List, Dict, Set, and other Observe objects as of yet.")
+			except:					#This is the case when var.id in the try segment fails. That is, the object has not 'id' parameter
+				raise InvalidSubscriptionError("Can't subscribe to object %s. Not supported yet."%var)
+
+			
+			#All variables now can be safely assumed to have a presence in the dependencyGraph
+
+		if len(self.variablesSubscribedTo) - 1 != len(self.operatorsList):		#Case when the required number of operators mismatches the number of operands
+			raise InvalidSubscriptionError("The number of operators can only be 1 less than the number of operands. Subscription aborted.")
+
+			#The scrubbing/sanitization of variables passed is now complete.
+
+		self.id = uuid.uuid4()
+		dependencyGraph[self.id] = []
+		idVariableDict[self.id] = self
+		self.name = name
+
+		for var in self.variablesSubscribedTo:
+			dependencyGraph[var.id].append(self.id)			#Declare the dependency of the Subsciption object on each of the variablesSubscribedTo.
+
+		self.update()		#Call the update method to calculate the value
+
+
+	def update(self):
+		operatorsSet = createSetInPrecedence(self.operatorsList)
+		operatorsListCopy = self.operatorsList[:]
+		tempVariablesSubscribedTo = self.variablesSubscribedTo[:]
+		tempVariablesSubscribedTo2 = []
+		for var in tempVariablesSubscribedTo:
+			if isinstance(var, (Observe, Subscribe)):
+				tempVariablesSubscribedTo2.append(var.value)	#In case var is an Observe/Subscribe object
+			else:
+				tempVariablesSubscribedTo2.append(var)		#In case var is a simple BDLS
+			#tempVariablesSubscribedTo2 is now the list of all variables with the corresponding values. This aids in calculations
+
+		for operator in operatorsSet:
+			tempVariablesSubscribedTo2 = evaluateEquation(tempVariablesSubscribedTo2, operator, operatorsListCopy)
+
+		self.value = tempVariablesSubscribedTo2[0]
+
+		for element in dependencyGraph[self.id]:
+			idVariableDict[element].update()
+
+			
+			#Set self.value somewhere here
+		self.onchange()
+
+	def onchange(self):
+		pass
+
+	def append(self, **args):
+		"""Append operands and operators to the existing object. Format is similar to __init__"""
+		try:
+			variablesSubscribedTo = list(args['var'])
+			operatorsList = list(args['op'])
+		except:
+			raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
+
+		for var in variablesSubscribedTo:
+			try:
+				if var.id not in idVariableDict:		#if var.id is available but it is not in the dependencyGraph..this is the case when a foreign object might have a parameter called 'id'
+					raise InvalidSubscriptionError("Can't subscribe to a foreign object. Subscribe only supports ByteArray, List, Dict, Set, and other Observe objects as of yet.")
+			except:					#This is the case when var.id in the try segment fails. That is, the object has not 'id' parameter
+				raise InvalidSubscriptionError("Can't subscribe to object %s. Not supported yet."%var)
+
+			
+			#All variables now can be safely assumed to have a presence in the dependencyGraph
+
+		self.variablesSubscribedTo += variablesSubscribedTo 	#Update the object variables
+		self.operatorsList += operatorsList
+
+		if len(self.variablesSubscribedTo) - 1 != len(self.operatorsList):		#Case when the required number of operators mismatches the number of operands
+			raise InvalidSubscriptionError("The number of operators can only be 1 less than the number of operands. Subscription aborted.")
+
+		self.update()
+
+	def equation(self):
+		"""Returns the current equation of the subscription"""
+		equationString = ''
+		if self.name != '':
+			equationString = self.name + ' ='
+		for i in range(len(self.variablesSubscribedTo)):
+			if i < len(self.OperatorsList):
+				operatorEqn = self.OperatorsList[i]
+			else:
+				operatorEqn = ''
+			if self.variablesSubscribedTo[i].name == '':		#Case when name hasn't been defined
+				nameOfVariable = str(self.variablesSubscribedTo[i].get())
+			else:
+				nameOfVariable = self.variablesSubscribedTo[i].name
+
+			equationString += ' ' + nameOfVariable + ' ' + operatorEqn		#Instead of using .get(), use self.variablesSubscribedTo.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
+		self.equationString = equationString
+		return self.equationString
+
+			
+		
+
+	def __repr__(self):
+		return("%s"%self.value)
+
+def createSetInPrecedence(operatorsList):
+	newOperatorList = []
+	#Check for all operators here. In future, this can accomodate more operators
+	if '**' in operatorsList:
+		newOperatorList.append('**')
+		##print("newOperatorList is %s"%newOperatorList)
+	if '*' in operatorsList:
+		newOperatorList.append('*')
+		##print("newOperatorList is %s"%newOperatorList)
+	if '/' in operatorsList:
+		newOperatorList.append('/')
+		##print("newOperatorList is %s"%newOperatorList)
+	if '%' in operatorsList:
+		newOperatorList.append('%')
+		##print("newOperatorList is %s"%newOperatorList)
+	if '//' in operatorsList:
+		newOperatorList.append('//')
+		##print("newOperatorList is %s"%newOperatorList)
+	if '+' in operatorsList:
+		newOperatorList.append('+')
+		##print("newOperatorList is %s"%newOperatorList)
+	if '-' in operatorsList:
+		newOperatorList.append('-')
+		##print("newOperatorList is %s"%newOperatorList)
+	return(newOperatorList)				#Returns the set of operators in the order of precedence
+
+def evaluateEquation(alteredList, operator, OperatorsList):
+	count = OperatorsList.count(operator)
+	locOperator = 0
+	for i in range(count):
+		#print("Count value is %s"%i)
+		#print("locOperator is %s"%locOperator)
+		#print("OperatorsList is %s"%OperatorsList)
+		locOperator = OperatorsList.index(operator, locOperator)
+		#Found the index of the operator. Now, find the corresponding 2 variables in variablesToObserve and perform the operation
+		#Perform the evaluation of variablesToObserve[locOperator]-'operator'-variablesToObserve[locOperator+1] here, and replace the two variables with the evaluated result at the location - 'locOperator'
+		
+		try:
+			firstOperand = alteredList[locOperator].value				#Pick the first operand
+		except:
+			firstOperand = alteredList[locOperator]
+		try:
+			secondOperand = alteredList[locOperator + 1].value			#Pick the second operand
+		except:
+			secondOperand = alteredList[locOperator + 1]
+
+		resultant = evaluateExpression(firstOperand, secondOperand, operator)		#Send the expression to another function, and the result will be replaced in the original variablesToObserve, along with the removal of the operator at that location from OperatorsList
+
+		alteredList.pop(locOperator)		#Pop the two operands, and replace them with the resultant
+		alteredList.pop(locOperator)
+
+		alteredList.insert(locOperator, resultant)		#Insert the resultant at the location where the two operands have been removed
+		OperatorsList.remove(operator)					#Also remove the operator, since it has been evaluated
+
+		##print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
+		#locOperator += 1		#Increase the location index so as to find the next location of the current operator
+	return alteredList
+
+def evaluateExpression(firstOperand, secondOperand, operator):
+	#Check for the apposite operator, perform the operation nad return the result
+	##print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
+	
+	if len(operator) == 2:
+		operator = operator[:]
+
+	try:
+		if '**' in operator:
+			result = firstOperand**secondOperand
+		elif operator is '-':
+			result = firstOperand - secondOperand
+		elif operator is '/':
+			result = firstOperand/secondOperand
+		elif operator is '*':
+			result = firstOperand*secondOperand
+		elif '//' in operator:
+			result = firstOperand//secondOperand
+		elif operator is '+':
+			result = firstOperand + secondOperand
+		elif operator is '%':
+			result = firstOperand%secondOperand
+		else:
+			raise TypeError("No %s operator found"%operator)
+	finally:
+
+		##print("Result in evaluateExpression is %s"%result)
+		return result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
