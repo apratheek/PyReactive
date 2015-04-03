@@ -37,7 +37,7 @@ class List(list):
 	def pop(self, location=-1):
 		"""L.pop([index]) -> item -- remove and return item at index (default last)
 			Raises IndexError if list is empty or index is out of range."""
-		print(super(List, self).pop(location))
+		#print(super(List, self).pop(location))
 		self.onchange()
 
 	def remove(self, value):
@@ -53,13 +53,13 @@ class List(list):
 
 	def __setitem__(self, key, value):
 		"""Set self[key] to value."""
-		#print("Set key:%s and value:%s"%(key,value))
+		##print("Set key:%s and value:%s"%(key,value))
 		super(List, self).__setitem__(key, value)
 		self.onchange()
 
 	def __delitem__(self, key):
 		"""Delete self[key]."""
-		#print("Deleted key:%s"%key)
+		##print("Deleted key:%s"%key)
 		super(List, self).__delitem__(key)
 		self.onchange()
 
@@ -100,7 +100,7 @@ class Set(set):
 	def pop(self, location=-1):
 		"""Remove and return an arbitrary set element.
 		   Raises KeyError if the set is empty."""
-		print(super(Set, self).pop(location))
+		#print(super(Set, self).pop(location))
 		self.onchange()
 
 	def remove(self, value):
@@ -139,17 +139,17 @@ class Int(int):
 		
 	#	self = Int(value)
 	#	self.__new__(Int, self)
-		#print(self)
-		#print("self is "%self)
+		##print(self)
+		##print("self is "%self)
 		
-	#	print("Self is %s"%self)
+	#	#print("Self is %s"%self)
 		
 	#	return(super(Int, self).__new__(Int ,value-self))
 		#super(Int, self).__new__(self, value)
 	
 	#def __new__(cls, *args, **kwargs):
-		#print("cls is %s args is %s"%(cls, args))
-	#	print(super(Int, cls).__new__(cls, *args))
+		##print("cls is %s args is %s"%(cls, args))
+	#	#print(super(Int, cls).__new__(cls, *args))
 	#def __init__(self, value):
 	#	super(Int, self).__init__(value)
 
@@ -174,14 +174,14 @@ class Dict(dict):
 	def pop(self, key):
 		""" D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
  		      If key is not found, d is returned if given, otherwise KeyError is raised."""
-		print(super(Dict, self).pop(key))
+		#print(super(Dict, self).pop(key))
 		self.onchange()
 		
 
 	def popitem(self):
 		"""D.popitem() -> (k, v), remove and return some (key, value) pair as a
  		      2-tuple; but raise KeyError if D is empty."""
-		print(super(Dict, self).popitem())
+		#print(super(Dict, self).popitem())
 		self.onchange()
 
 	def update(self, anotherDict):
@@ -195,13 +195,13 @@ class Dict(dict):
 
 	def __setitem__(self, key, value):
 		"""Set self[key] to value."""
-		#print("Set key:%s and value:%s"%(key,value))
+		##print("Set key:%s and value:%s"%(key,value))
 		super(Dict, self).__setitem__(key, value)
 		self.onchange()
 
 	def __delitem__(self, key):
 		"""Delete self[key]."""
-		#print("Deleted key:%s"%key)
+		##print("Deleted key:%s"%key)
 		super(Dict, self).__delitem__(key)
 		self.onchange()
 
