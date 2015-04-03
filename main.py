@@ -203,6 +203,7 @@ class Observe:
 
 		elif isinstance(self.underlyingValue, Set):
 			#print("There's nothing to Observe in a Set")
+			pass
 
 		elif isinstance(self.underlyingValue, Dict):
 			#print("isinstance Dict is true, hence entered the Corresponding if-block")
@@ -347,14 +348,17 @@ class Subscribe:
 		if self.name != '':
 			equationString = self.name + ' ='
 		for i in range(len(self.variablesSubscribedTo)):
-			if i < len(self.OperatorsList):
-				operatorEqn = self.OperatorsList[i]
+			if i < len(self.operatorsList):
+				operatorEqn = self.operatorsList[i]
 			else:
 				operatorEqn = ''
-			if self.variablesSubscribedTo[i].name == '':		#Case when name hasn't been defined
-				nameOfVariable = str(self.variablesSubscribedTo[i].get())
-			else:
-				nameOfVariable = self.variablesSubscribedTo[i].name
+			try:
+				if self.variablesSubscribedTo[i].name == '':		#Case when name hasn't been defined
+					nameOfVariable = str(self.variablesSubscribedTo[i])
+				else:
+					nameOfVariable = self.variablesSubscribedTo[i].name
+			except:
+				nameOfVariable = str(self.variablesSubscribedTo[i])
 
 			equationString += ' ' + nameOfVariable + ' ' + operatorEqn		#Instead of using .get(), use self.variablesSubscribedTo.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
 		self.equationString = equationString
