@@ -1,5 +1,5 @@
 # PyReactive
-Reactive Programming Module for Python 3
+Reactive Programming Module for Python 3. 
 Complete writeup at my [blog](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
 
 ####What is Reactive Programing?
