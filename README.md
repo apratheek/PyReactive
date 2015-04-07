@@ -4,12 +4,12 @@ Reactive Programming Module for Python 3
 ####What is Reactive Programing?
 Wikipedia defines Reactive Programming as
 
-```
-"In computing, reactive programming is a programming paradigm oriented around data flows and the propagation of change. This means that it should be possible to express static or dynamic data flows with ease in the programming languages used, and that the underlying execution model will automatically propagate changes through the data flow."
-```
+
+> "In computing, reactive programming is a programming paradigm oriented around data flows and the propagation of change. This means that it should be possible to express static or dynamic data flows with ease in the programming languages used, and that the underlying execution model will automatically propagate changes through the data flow."
+
 Look at the following code.
 
-```python
+```python3
 >>>a = 5
 >>>b = 8
 >>>sum = a + b
@@ -27,7 +27,7 @@ But what if we wanted **sum** to change according to the values of **a** and **b
 --> ENTER REACTIVE PROGRAMMING
 
 In this paradigm, variables are OBSERVED and/or SUBSCRIBED to. What I mean by **observed** is that when a value is declared, a memory location is alloted and when the value changes, the memory location is overwritten, rather than having it assigned in a new memory slot. This means that a variable can only update until it is explicitly purged. This is pretty similar to what happens with languages that expose memory locations by the usage of pointers. What I mean by **subscribed** is that another variable subscribes to the observed variables, and this colloquially means that it always has the latest value of the observed variables. The following example should clear things up. The pseudo code is:
-```
+```python3
 >>>a = Observe(5)
 >>>b = Observe(8)
 >>>sum = Subscribe(var=(a,b), op=('+',))
