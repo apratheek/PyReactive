@@ -44,7 +44,10 @@ In this paradigm, variables are OBSERVED and/or SUBSCRIBED to. What I mean by **
 The above example shows how reactive programming works. It observes variables, and whenever there's a subscription, it automatically computes the operation everytime there's a change in the underlying value of the variable. This example shows how beautiful code can get by utilizing this wonderful paradigm. No more redundant declarations. Declare once, use forever. Okay, I might be getting carried away now.
 
 ####The nuts and bolts (and other definitions)
-The following section describes the various definitions of terms used in the module and the corresponding APIs.
+The following section describes the various definitions of terms used in the module and the corresponding APIs. For all the code to work, until I write a setup.py file, use this module as:
+```python
+from PyReactive import *
+```
 
 #####Mutables
 A mutable is any data type that can be altered in-place. The meaning of in-place is that the value is modified in the same memory location. In other words, if you're familiar with Python, the ____new____ method isn't called when its value changes. In PyReactive, ByteArray, Dict, List, Set, Observe and Subscribe are mutables.
@@ -234,7 +237,7 @@ Each Observe object has a couple of fancy methods too.
 1
 ```
 
-**b) onchange** - this, arguably, is one of the coolest piece of code I've ever imagined! This method needs to be overridden if you want something exotic to happen whenever the Observe object changes. Every time that the value of the object changes, the **onchange** method is called. An e.g.: Let's say that we want to push the updated value via a WebSocket, all that we have to do is override the **onchange** method to push the value via the WebSocket. It takes fewer lines than this description. Seriously.
+**b) onchange** - This method needs to be overridden if you want something exotic to happen whenever the Observe object changes. Every time that the value of the object changes, the **onchange** method is called. An e.g.: Let's say that we want to push the updated value via a WebSocket, all that we have to do is override the **onchange** method to push the value via the WebSocket. It takes fewer lines than this description. Seriously.
 ```python
 class ObserveSocket(Observe):
 	def onchange(self):
