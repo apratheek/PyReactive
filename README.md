@@ -1,5 +1,6 @@
 # PyReactive
 Reactive Programming Module for Python 3
+Complete writeup at my [blog](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
 
 ####What is Reactive Programing?
 Wikipedia defines Reactive Programming as
@@ -302,6 +303,6 @@ a)
 Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding onchange method of c wouldn't work in this case. Will issue an update very soon.
 
 #####Further work:
-1) Open up access to other data types and objects such as those of numpy/scipy, etc.
-2) Extend this module such that user-defined operators can be included.
-3) Write this using asyncio, if needed.
+1. Open up access to other data types and objects such as those of numpy/scipy, etc.
+2. Extend this module such that user-defined operators can be included.
+3. Write this using asyncio, if needed.
