@@ -9,7 +9,7 @@ Wikipedia defines Reactive Programming as
 
 Look at the following code.
 
-```python3
+```python
 >>>a = 5
 >>>b = 8
 >>>sum = a + b
@@ -27,7 +27,7 @@ But what if we wanted **sum** to change according to the values of **a** and **b
 --> ENTER REACTIVE PROGRAMMING
 
 In this paradigm, variables are OBSERVED and/or SUBSCRIBED to. What I mean by **observed** is that when a value is declared, a memory location is alloted and when the value changes, the memory location is overwritten, rather than having it assigned in a new memory slot. This means that a variable can only update until it is explicitly purged. This is pretty similar to what happens with languages that expose memory locations by the usage of pointers. What I mean by **subscribed** is that another variable subscribes to the observed variables, and this colloquially means that it always has the latest value of the observed variables. The following example should clear things up. The pseudo code is:
-```python3
+```python
 >>>a = Observe(5)
 >>>b = Observe(8)
 >>>sum = Subscribe(var=(a,b), op=('+',))
@@ -45,17 +45,17 @@ The above example shows how reactive programming works. It observes variables, a
 ####The nuts and bolts (and other definitions)
 The following section describes the various definitions of terms used in the module and the corresponding APIs.
 
-######Mutables
+#####Mutables
 A mutable is any data type that can be altered in-place. The meaning of in-place is that the value is modified in the same memory location. In other words, if you're familiar with Python, the ____new____ method isn't called when its value changes. In PyReactive, ByteArray, Dict, List, Set, Observe and Subscribe are mutables.
 
-######Immutables
+#####Immutables
 An immutable is any object/data type that cannot be altered in-place, i.e., a new instantiation takes place when it is modified. In other words, the ____new____ method is called every time the value changes. Or, once an immutable is assigned, the only way its value can be changed is by declaring a new immutable. In Python, int, str, tuple, etc. are immutables.
 
-######ByteArray, Dict, List, Set (BDLS)
+#####ByteArray, Dict, List, Set (BDLS)
 These are bytearray, dict, list, and set on steroids. They are specific to PyReactive only and have a few overridden methods over their native equivalents. They can be accessed with the same Pythonic APIs, but whenever there's a change in their values, they begin to do some exotic things (Okay, may be not. Maybe they only check the dependencyGraph and issue callback updates to all mutables dependent on them).
 
 Mind the __CamelCasing__ in their names, though. This is what makes them unique. The usage is as follows:
-```
+```python
 >>>a = List([1,3,2])
 >>>a[0]
 1
@@ -69,11 +69,11 @@ Mind the __CamelCasing__ in their names, though. This is what makes them unique.
 >>>d
 bytearray(b'hello')
 ```
-######Observe objects
+#####Observe objects
 Observe objects are the ones where the magic begins. In PyReactive, I've defined them as any data type that depends on only one operator, or method. In other words, they could be viewed as data types that have unary operands. Let's jump in to a few examples.
 
 **Use case: List**
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Observe(a)
 >>>b
@@ -91,7 +91,7 @@ As you can see, every change on the list propogates in to a change on the observ
 An Observe object also takes in an optional method. The legal keywords for the optional method are: count, reverse, sort, firstel, lastel, slice and set.
 
 **a) count** - always holds the number of occurrences of the value passed with the methodParameter option.
-```
+```python
 >>>a = list([1,1,1,4,3,5,1,1])
 >>>b = Observe(a, method='count', methodParameter=1)
 >>>b	#Stores the number of 1s
@@ -104,7 +104,7 @@ An Observe object also takes in an optional method. The legal keywords for the o
 ```
 
 **b) reverse** - holds a copy of the reversed List
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Observe(a, method='reverse')
 >>>b
@@ -116,7 +116,7 @@ An Observe object also takes in an optional method. The legal keywords for the o
 [9,2,3,1]
 ```
 **c) sort** - holds a copy of the sorted List
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Observe(a, method='sort')
 >>>b
@@ -130,7 +130,7 @@ An Observe object also takes in an optional method. The legal keywords for the o
 
 
 **d) firstel** - holds the first element of the List
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Observe(a, method='firstel')
 >>>b
@@ -140,7 +140,7 @@ An Observe object also takes in an optional method. The legal keywords for the o
 -100
 ```
 An example that combines sort and firstel to always holds the least element of a List
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Observe(a, method='sort')
 >>>leastEl = Observe(b, method='firstel')
@@ -155,7 +155,7 @@ An example that combines sort and firstel to always holds the least element of a
 [-9,1,2,3]
 ```
 **e) lastel** - always holds the last element of the List
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Observe(a, method='lastel')
 >>>b
@@ -167,7 +167,7 @@ An example that combines sort and firstel to always holds the least element of a
 [1,3,2,9]
 ```
 **f) slice** - holds the sliced List, with the methodParameter being a slice object
-```
+```python
 >>>a = List([1,3,2,4,1])
 >>>b = Observe(a, method='slice', methodParameter=slice(0,3))
 >>>b
@@ -177,7 +177,7 @@ An example that combines sort and firstel to always holds the least element of a
 [-4,1,3]
 ```
 **g) set** - holds only the unique elements of the List
-```
+```python
 >>>a = List([1,3,2,2,4,1,5,2])
 >>>b = Observe(a, method='set')
 >>>b
@@ -188,7 +188,7 @@ An example that combines sort and firstel to always holds the least element of a
 ```
 
 **Use Case: Dict**
-```
+```python
 >>>a = Dict({1: [12,3,65], 2: [43,23,1]})
 >>>b = Observe(a)
 >>>a[3] = [78,54,23]
@@ -198,7 +198,7 @@ An example that combines sort and firstel to always holds the least element of a
 A change in the underlying Dict triggers a change in the Observe object. The optional method keywords are:
 
 **a) key** - holds the current value of the 'key' passed in as the methodParameter
-```
+```python
 >>>a = Dict({1: [12,3,65], 2: [43,23,1]})
 >>>b = Observe(a, method='key', methodParameter=1)
 >>>b
@@ -208,7 +208,7 @@ A change in the underlying Dict triggers a change in the Observe object. The opt
 [5,2]
 ```
 **Use Case: ByteArray**
-```
+```python
 >>>a = ByteArray('hello','UTF-8')
 >>>b = Observe(a)
 >>>b
@@ -219,11 +219,11 @@ bytearray(b'xello')
 ```
 Again, the change percolates to a change in the Observe object.
 
-######Observe class methods
+#####Observe class methods
 Each Observe object has a couple of fancy methods too.
 
 **a) modifyMethod** - this method modifies the current method parameter to something different.
-```
+```python
 >>>a = List([1,3,2,4,9])
 >>>b = Observe(a, method='sort')
 >>>b
@@ -234,12 +234,12 @@ Each Observe object has a couple of fancy methods too.
 ```
 
 **b) onchange** - this, arguably, is one of the coolest piece of code I've ever imagined! This method needs to be overridden if you want something exotic to happen whenever the Observe object changes. Every time that the value of the object changes, the **onchange** method is called. An e.g.: Let's say that we want to push the updated value via a WebSocket, all that we have to do is override the **onchange** method to push the value via the WebSocket. It takes fewer lines than this description. Seriously.
-```
+```python
 class ObserveSocket(Observe):
 	def onchange(self):
     	ws.send(self)		#Where ws is the WebSocket object
 ```
-```
+```python
 >>>a = List([1,2])
 >>>b = ObserveSocket(a)
 >>>a.append(9)
@@ -248,7 +248,7 @@ class ObserveSocket(Observe):
 ```
 **c) changeTo** - this method is used to change the value of the Observe object, in case it observes an immutable data type such as **int**, **str**, etc. Like in all other cases, a change here would trigger a change in all the dependents on this object.
 
-```
+```python
 >>>a = Observe(9)
 >>>a
 9
@@ -264,7 +264,7 @@ class ObserveSocket(Observe):
 >>>b.changeTo(1000)
 InvalidSubscriptionError: changeTo method not permitted on mutables.
 ```
-######Subscribe Objects
+#####Subscribe Objects
 Subscribe objects are similar to Observe objects, but the only difference is that they take in multiple operands and operators. Subscribe objects look and behave like mathematical equations. Let's look at the API and a few use cases.
 
 **API:** **SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....))**
@@ -272,18 +272,22 @@ Subscribe objects are similar to Observe objects, but the only difference is tha
 **var** is a tuple of all the operands and **op** is a tuple of all the operators (in quotes). The equation is written in **INFIX** notation, which is geek speak for normal representation of mathematical equations. The operator precedence followed is that of Python's.
 
 If **c** is to subscribe to **a + b**, the API is:
-`>>>c = Subscribe(var=(a,b), op=('+',))`
+```python
+>>>c = Subscribe(var=(a,b), op=('+',))
+```
 
 If **result** is to subscribe to **a + b * 5 - c ** 0.87 + d - e/6**, the same API looks like this:
-`>>>result = Subscribe(var=(a,b,5,c,0.87,d,e,6), op=('+','*','-','**','+','-','/'))`
+```python
+>>>result = Subscribe(var=(a,b,5,c,0.87,d,e,6), op=('+','*','-','**','+','-','/'))
+```
 
 As of this moment, the **supported operators** are: **+**, **-**, **/**, __\*__, __\*\*__, __%__, __//__.
 
 Additionally, one can subscribe to other data types such as ByteArrays, Lists, Dicts, Sets, Observe objects, Subscribe objects.
 
-######Known Issues
+#####Known Issues
 a)
-```
+```python
 >>>a = List([1,3,2])
 >>>b = Dict({1:a})
 >>>c = Observe(b)
@@ -297,7 +301,7 @@ a)
 ```
 Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding onchange method of c wouldn't work in this case. Will issue an update very soon.
 
-######Further work:
+#####Further work:
 1) Open up access to other data types and objects such as those of numpy/scipy, etc.
 2) Extend this module such that user-defined operators can be included.
 3) Write this using asyncio, if needed.
