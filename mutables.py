@@ -1,10 +1,10 @@
 """Module that consists of overridden default mutable datatypes"""
 
 class List(list):
-	
+
 	"""List() -> new empty list
    	   List(iterable) -> new list initialized from iterable's items"""
-	
+
 	def append(self, value):
 		"""L.append(object) -> None -- append object to end"""
 		super(List, self).append(value)
@@ -91,10 +91,22 @@ class Set(set):
 		super(Set, self).clear()
 		self.onchange()
 
+	def difference_update(self, *value):
+		"""Remove all elements of another set from this set."""
+		for val in value:
+			super(Set, self).difference_update(val)
+		self.onchange()
+
 	def discard(self, value):
 		"""Remove an element from a set if it is a member.
 		   If the element is not a member, do nothing."""
 		super(Set, self).discard(value)
+		self.onchange()
+
+	def intersection_update(self, *value):
+		"""Update a set with the intersection of itself and another."""
+		for val in value:
+			super(Set, self).intersection_update(val)
 		self.onchange()
 
 	def pop(self, location=-1):
@@ -109,10 +121,17 @@ class Set(set):
 		super(Set, self).remove(value)
 		self.onchange()
 
+	def symmetric_difference_update(self, *value):
+		"""Update a set with the symmetric difference of itself and another."""
+		for val in value:
+			super(Set, self).symmetric_difference_update(val)
+		self.onchange()
+
 	def update(self, value):
 		"""Update a set with the union of itself and others."""
 		super(Set, self).update(value)
 		self.onchange()
+
 
 	def onchange(self):
 		"""Internal method that is always called when there's a change in the data type"""
@@ -135,18 +154,18 @@ class Int(int):
 	pass
 	#def modify(self, value):
 		#value = Int(value)
-		
-		
+
+
 	#	self = Int(value)
 	#	self.__new__(Int, self)
 		##print(self)
 		##print("self is "%self)
-		
+
 	#	#print("Self is %s"%self)
-		
+
 	#	return(super(Int, self).__new__(Int ,value-self))
 		#super(Int, self).__new__(self, value)
-	
+
 	#def __new__(cls, *args, **kwargs):
 		##print("cls is %s args is %s"%(cls, args))
 	#	#print(super(Int, cls).__new__(cls, *args))
@@ -163,12 +182,12 @@ class Dict(dict):
  	          d[k] = v
  	  Dict(**kwargs) -> new dictionary initialized with the name=value pairs
  	      in the keyword argument list.  For example:  Dict(one=1, two=2)"""
-	
+
 	def clear(self):
 		"""D.clear() -> None.  Remove all items from D."""
 		super(Dict, self).clear()
 		self.onchange()
-		
+
 
 
 	def pop(self, key):
@@ -176,7 +195,7 @@ class Dict(dict):
  		      If key is not found, d is returned if given, otherwise KeyError is raised."""
 		#print(super(Dict, self).pop(key))
 		self.onchange()
-		
+
 
 	def popitem(self):
 		"""D.popitem() -> (k, v), remove and return some (key, value) pair as a
@@ -191,7 +210,7 @@ class Dict(dict):
  	      In either case, this is followed by: for k in F:  D[k] = F[k]"""
 		super(Dict, self).update(anotherDict)
 		self.onchange()
-		
+
 
 	def __setitem__(self, key, value):
 		"""Set self[key] to value."""
@@ -221,14 +240,14 @@ class ByteArray(bytearray):
  	  	ByteArray(bytes_or_buffer) -> mutable copy of bytes_or_buffer
  	  	ByteArray(int) -> bytes array of size given by the parameter initialized with null bytes
  	  	ByteArray() -> empty bytes array
- 	  
+
  	  	Construct an mutable bytearray object from:
  	    	- an iterable yielding integers in range(256)
  	    	- a text string encoded using the specified encoding
  	    	- a bytes or a buffer object
  	    	- any object implementing the buffer API.
  	    	- an integer"""
-	
+
 	def __delitem__(self, key):
 		"""Delete self[key]."""
 		super(ByteArray, self).__delitem__(key)
@@ -241,14 +260,14 @@ class ByteArray(bytearray):
 
 	def append(self, value):
 		"""B.append(int) -> None
- 	      
+
  	      	Append a single item to the end of B."""
 		super(ByteArray, self).append(value)
 		self.onchange()
 
 	def clear(self):
 		"""B.clear() -> None
-       
+
  		    Remove all items from B."""
 		super(ByteArray, self).clear()
 		self.onchange()
@@ -259,7 +278,7 @@ class ByteArray(bytearray):
 
 	def extend(self, itr):
 		"""B.extend(iterable_of_ints) -> None
-       
+
  	      Append all the elements from the iterator or sequence to the
  	      end of B."""
 		super(ByteArray, self).extend(itr)
@@ -267,14 +286,14 @@ class ByteArray(bytearray):
 
 	def insert(self, index, value):
 		"""B.insert(index, int) -> None
-       
+
  	      Insert a single item into the bytearray before the given index."""
 		super(ByteArray, self).insert(index, value)
 		self.onchange()
 
 	def pop(self, location=-1):
 		"""B.pop([index]) -> int
-       
+
  	      Remove and return a single item from B. If no index
  	      argument is given, will pop the last value."""
 		super(ByteArray, self).pop(location)
@@ -282,14 +301,14 @@ class ByteArray(bytearray):
 
 	def remove(self, value):
 		"""B.remove(int) -> None
-       
+
  	      Remove the first occurrence of a value in B."""
 		super(ByteArray, self).remove(value)
 		self.onchange()
 
 	def reverse(self):
 		"""B.reverse() -> None
-       
+
  	      Reverse the order of the values in B in place."""
 		super(ByteArray, self).reverse()
 		self.onchange()
