@@ -37,7 +37,7 @@ class List(list):
 	def pop(self, location=-1):
 		"""L.pop([index]) -> item -- remove and return item at index (default last)
 			Raises IndexError if list is empty or index is out of range."""
-		#print(super(List, self).pop(location))
+		print(super(List, self).pop(location))
 		self.onchange()
 
 	def remove(self, value):
@@ -109,10 +109,10 @@ class Set(set):
 			super(Set, self).intersection_update(val)
 		self.onchange()
 
-	def pop(self, location=-1):
+	def pop(self):
 		"""Remove and return an arbitrary set element.
 		   Raises KeyError if the set is empty."""
-		#print(super(Set, self).pop(location))
+		print(super(Set, self).pop())
 		self.onchange()
 
 	def remove(self, value):
@@ -193,14 +193,14 @@ class Dict(dict):
 	def pop(self, key):
 		""" D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
  		      If key is not found, d is returned if given, otherwise KeyError is raised."""
-		#print(super(Dict, self).pop(key))
+		print(super(Dict, self).pop(key))
 		self.onchange()
 
 
 	def popitem(self):
 		"""D.popitem() -> (k, v), remove and return some (key, value) pair as a
  		      2-tuple; but raise KeyError if D is empty."""
-		#print(super(Dict, self).popitem())
+		print(super(Dict, self).popitem())
 		self.onchange()
 
 	def update(self, anotherDict):
@@ -296,7 +296,7 @@ class ByteArray(bytearray):
 
  	      Remove and return a single item from B. If no index
  	      argument is given, will pop the last value."""
-		super(ByteArray, self).pop(location)
+		print(super(ByteArray, self).pop(location))
 		self.onchange()
 
 	def remove(self, value):
