@@ -1,6 +1,6 @@
 # PyReactive
 Reactive Programming Module for Python 2/3. 
-Complete writeup on my [blog http://pratheekadidela.in/](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
+Complete writeup at [http://pratheekadidela.in/](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
 
 ####What is Reactive Programing?
 Wikipedia defines Reactive Programming as
