@@ -577,9 +577,9 @@ def evaluateExpression(firstOperand, secondOperand, operator):
 			result = firstOperand + secondOperand
 		elif operator is '%':
 			result = firstOperand%secondOperand
-		elif operator is '<<':
+		elif '<<' in operator:
 			result = firstOperand<<secondOperand
-		elif operator is '>>':
+		elif '>>' in operator:
 			result = firstOperand>>secondOperand
 		elif operator is '&':
 			result = firstOperand & secondOperand
