@@ -1,6 +1,6 @@
 # PyReactive
-Reactive Programming Module for Python 3. 
-Complete writeup at my [blog](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
+Reactive Programming Module for Python 2/3. 
+Complete writeup on my [blog http://pratheekadidela.in/](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
 
 ####What is Reactive Programing?
 Wikipedia defines Reactive Programming as
@@ -76,7 +76,58 @@ bytearray(b'hello')
 #####Observe objects
 Observe objects are the ones where the magic begins. In PyReactive, I've defined them as any data type that depends on only one operator, or method. In other words, they could be viewed as data types that have unary operands. Let's jump in to a few examples.
 
-**Use case: List**
+**Use Case: str, tuple, frozenset (native python data types)**
+```python
+>>>a = Observe('hey')
+>>>b = Observe(a)
+>>>b
+'hey'
+```
+There's not much to do here, since they are immutable data types. But, although this is fairly redundant, there's a method that's allowed.
+
+**a) len** - Holds the length of the data type
+```python
+>>>a = Observe('hey')
+>>>leng = Observe(a, method='len')
+>>>leng
+3
+>>>a.changeTo('hello there')
+>>>leng
+11
+```
+
+**Use Case: int, float, bool (native python data types)**
+```python
+>>>a = Observe(9)
+>>>b = Observe(a)
+>>>b
+9
+```
+There are 2 methods allowed here. They are:
+
+**a) not** - this is the LOGICAL NOT operator
+```python
+>>>a = Observe(2)
+>>>b = Observe(a, method='not')
+>>>b
+False
+>>>a.changeTo(0)
+>>>b
+True
+```
+
+**b) '~'** - this is the Ones COMPLEMENT operator
+```python
+>>>a = Observe(1)
+>>>b = Observe(a, method='~')
+>>>b
+-2
+>>>a.changeTo(3)
+>>>b
+-4
+```
+
+**Use Case: List**
 ```python
 >>>a = List([1,3,2])
 >>>b = Observe(a)
@@ -191,6 +242,18 @@ An example that combines sort and firstel to always holds the least element of a
 {1,2,3,4,5,6,7}
 ```
 
+**h) len** - holds the length of the List
+```python
+>>>a = List([1,2,4,3,1])
+>>>length = Observe(a, method='len')
+>>>length
+5
+>>>a.pop()
+1
+>>>length
+4
+```
+
 **Use Case: Dict**
 ```python
 >>>a = Dict({1: [12,3,65], 2: [43,23,1]})
@@ -211,6 +274,134 @@ A change in the underlying Dict triggers a change in the Observe object. The opt
 >>>b
 [5,2]
 ```
+**b) len** - holds the length of the Dict
+```python
+>>>a = Dict({1:2, 2:3})
+>>>length = Observe(a, method='len')
+>>>length
+2
+>>>a[3] = 4
+>>>length
+3
+```
+
+**Use Case: Set**
+```python
+>>>a = Set({1,2,3,4,1,1,4})
+>>>a
+Set({1,2,3,4})
+>>>b = Observe(a)
+>>>a.update({9})
+>>>b
+Set({1,2,3,4,9})
+>>>a
+Set({1,2,3,4,9})
+```
+Just like in the previous case, any change to the Set data type percolates to the Observe object. 
+
+The Observe object in this case also takes a few optional methods along with a few methodParameters. The legal keywords for the optional method are: len, difference, intersection, symmetric_difference, union, isdisjoint, issubset, issuperset.
+
+**a) len** - holds the length of the Set
+```python
+>>>a = Set({1,3,4,2,1})
+>>>b = Observe(a, method='len')
+>>>b
+4
+>>>a.update({5})
+>>>b
+5
+```
+
+**b) difference** - calculate the set difference of S1 and S2, which is the elements that are in S1 but not in S2
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({2,3,4})
+>>>diff = Observe(S1, method='difference', methodParameter=S2)
+>>>diff
+Set({1})
+>>>S1.update({5})
+>>>diff
+Set({1,5})
+```
+
+**c) intersection** - holds elements that have a presence in both S1 and S2
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({2,3,4})
+>>>intersect = Observe(S1, method='intersection', methodParameter=S2)
+>>>intersect
+Set({2,3})
+>>>S2.update({1})
+>>>intersect
+Set({1,2,3})
+```
+
+**d) symmetric_difference** - holds the set of elements which are in one of either set, but not in both
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({2,3,4})
+>>>symm_diff = Observe(S1, method='symmetric_difference', methodParameter=S2)
+>>>symm_diff
+Set({1,4})
+>>>S2.update({1})
+>>>symm_diff
+Set({4})
+```
+
+**e) union** - holds the merger of the two sets
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({5,7,8})
+>>>union = Observe(S1, method='union', methodParameter=S2)
+>>>union
+Set({1,2,3,5,7,8})
+>>>S1.update({0,9})
+>>>union
+Set({0,1,2,3,5,7,8,9})
+```
+
+**f) isdisjoint** - returns **True** if S1 is disjoint with S2, **False** otherwise
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({4,5,6})
+>>>check = Observe(S1, method='isdisjoint', methodParameter=S2)
+>>>check
+True
+>>>S2.update({3})
+>>>check
+False
+>>>S1.remove(3)
+>>>check
+True
+```
+
+**g) issubset** - returns **True** if S1 is a subset of S2, **False** otherwise
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({4,5,6})
+>>>check = Observe(S1, method='issubset', methodParameter=S2)
+>>>check
+False
+>>>S2.update({1,2,3})
+>>>check
+True
+```
+
+**h) issuperset** - returns **True** if S1 is superset of S2, **False** otherwise
+```python
+>>>S1 = Set({1,2,3})
+>>>S2 = Set({4,5,6})
+>>>check = Observe(S1, method='issuperset', methodParameter=S2)
+>>>check
+False
+>>>S1.update({4,5,6})
+>>>check
+True
+```
+
+Now, it's true that all the above optional methods could've been made as **Subscribe** operators, but since PyReactive doesn't support parantheses yet, there's no way to ensure the precedence of set operators. To avoid ambiguity (since in this case only one operation can be performed at a time), chaining of set operations can be used to solve complex and intricate set equations.
+
+
 **Use Case: ByteArray**
 ```python
 >>>a = ByteArray('hello','UTF-8')
@@ -221,12 +412,26 @@ bytearray(b'hello')
 >>>b
 bytearray(b'xello')
 ```
-Again, the change percolates to a change in the Observe object.
+Again, the change percolates to a change in the Observe object. The optional methods are:
+
+**a) len** - Holds the length of the ByteArray
+```python
+>>>a = ByteArray('hello', 'UTF-8')
+>>>length = Observe(a, method='len')
+>>>a.pop()
+111
+>>>length
+4
+>>>a
+bytearray(b'hell')
+```
 
 #####Observe class methods
-Each Observe object has a couple of fancy methods too.
+Each Observe object has a few fancy methods too.
 
-**a) modifyMethod** - this method modifies the current method parameter to something different.
+**a) modifyMethod** - this method modifies the current method to something different. Also takes in an optional methodParameter that acts in tandem with the method.
+
+
 ```python
 >>>a = List([1,3,2,4,9])
 >>>b = Observe(a, method='sort')
@@ -237,10 +442,10 @@ Each Observe object has a couple of fancy methods too.
 1
 ```
 
-**b) onchange** - This method needs to be overridden if you want something exotic to happen whenever the Observe object changes. Every time that the value of the object changes, the **onchange** method is called. An e.g.: Let's say that we want to push the updated value via a WebSocket, all that we have to do is override the **onchange** method to push the value via the WebSocket. It takes fewer lines than this description. Seriously.
+**b) notify** - This method needs to be overridden if you want something exotic to happen whenever the Observe object changes. Every time that the value of the object changes, the **notify** method is called. An e.g.: Let's say that we want to push the updated value via a WebSocket, all that we have to do is override the **notify** method to push the value via the WebSocket. It takes fewer lines than this description. Seriously.
 ```python
 class ObserveSocket(Observe):
-	def onchange(self):
+	def notify(self):
     	ws.send(self)		#Where ws is the WebSocket object
 ```
 ```python
@@ -285,9 +490,68 @@ If **result** is to subscribe to **a + b * 5 - c ** 0.87 + d - e/6**, the same A
 >>>result = Subscribe(var=(a,b,5,c,0.87,d,e,6), op=('+','*','-','**','+','-','/'))
 ```
 
-As of this moment, the **supported operators** are: **+**, **-**, **/**, __\*__, __\*\*__, __%__, __//__.
+As of this moment, the **supported operators** are: 
+**+** (Addition), 
+**-** (Subtraction), 
+**/** (Division), 
+__\*__ (Multiplication),
+__\*\*__ (Exponent),
+__%__ (Modulus),
+__//__ (Floor Division),
+**<<** (Binary Left Shift), 
+**>>** (Binary Right Shift),
+**&** (Binary/Bitwise AND), 
+**|** (Binary/Bitwise OR),
+**^** (Binary/Bitwise XOR),
+**'and'** (Logical AND),
+**'or'** (Logical OR).
 
 Additionally, one can subscribe to other data types such as ByteArrays, Lists, Dicts, Sets, Observe objects, Subscribe objects.
+
+######Subscribe class methods
+Each Subscribe object has a few fancy methods too.
+
+**a) equation** - displays the current equation subscribed to. If the name of the variable is set, the corresponding names are shown. Otherwise, the value is displayed.
+```python
+>>>a = Observe(9)
+>>>b = Observe(10)
+>>>c = Subscribe(var=(a,b), op=('<<',))
+>>>c
+9216
+>>>c.equation()
+' 9 << 10 '
+```
+
+**b) append** - appends variables and their corresponding operators to the existing equation. The API is same as the one used during initialization.
+```python
+>>>a = Observe(12)
+>>>b = Observe(16)
+>>>subs = Subscribe(var=(a,b), op=('*',))
+>>>subs
+192
+>>>c = Observe(20)
+>>>subs.append(var=(c,), op=('-',))
+>>>subs
+172
+>>>subs.equation()
+' 12 * 16 - 20 '
+```
+
+**c) notify** - Similar to the **notify** method on an **Observe** object, this method too needs to be overridden to do something meaningful. The **notify** method is called every time there's a change in the underlying value of the **Subscribe** object.
+```python
+>>>a = Observe(10)
+>>>b = Observe(11)
+>>>class SubNotify(Subscribe):
+	def notify(self):
+    	if self.value > 23:
+        	print("Value hit the upper limit!")
+>>>c = SubNotify(var=(a,b), op=('+',))
+>>>a.changeTo(11)
+>>>b.changeTo(12)
+>>>a.changeTo(12)
+Value hit the upper limit!
+>>>
+```
 
 #####Known Issues
 a)
