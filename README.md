@@ -491,7 +491,7 @@ If **result** is to subscribe to **a + b * 5 - c ** 0.87 + d - e/6**, the same A
 ```
 
 As of this moment, the **supported operators** are: 
-1. **+** (Addition), 
+> 1. **+** (Addition), 
 2. **-** (Subtraction), 
 3. **/** (Division), 
 4. __\*__ (Multiplication),
