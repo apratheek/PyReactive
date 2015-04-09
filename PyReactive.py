@@ -123,7 +123,7 @@ class Observe:
 			if method is 'not':
 				print("method is not")
 			elif method is not '':
-				raise InvalidSubscriptionError("Can't have method parameter set for native data types")
+				raise InvalidSubscriptionError("The method %s is not applicable on native data types"%method)
 			self.method = method
 			dependencyGraph[self.id] = []
 			immutableList.append(self)		#Append to immutableList
@@ -249,9 +249,40 @@ class Observe:
 
 			#	elif self.method is 'isdisjoint':
 
-			if self.method in ['len']:
+			if self.method in ['len', 'difference', 'intersection', 'isdisjoint', 'issubset', 'issuperset', 'symmetric_difference', 'union']:
 				if self.method is 'len':
 					self.value = len(self.underlyingValue)
+				elif self.method in ['difference', 'intersection', 'isdisjoint', 'issubset', 'issuperset', 'symmetric_difference', 'union']:
+
+					try:
+						if self.id in dependencyGraph[self.methodParameter.id]:
+							print("self.methodParameter dependency already included")
+						else:
+							dependencyGraph[self.methodParameter.id].append(self.id)
+					except:
+						raise InvalidSubscriptionError("methodParameter passed is not in the right format. Check again.")
+
+					try:	#Process where self.method is applied
+
+						if self.method is 'difference':
+							self.value = Set(self.dependency.difference(self.methodParameter))
+						elif self.method is 'intersection':
+							self.value = Set(self.dependency.intersection(self.methodParameter))
+						elif self.method is 'isdisjoint':
+							self.value = self.dependency.isdisjoint(self.methodParameter)
+							print("isdisjoint checked")
+						elif self.method is 'issubset':
+							self.value = self.dependency.issubset(self.methodParameter)
+						elif self.method is 'issuperset':
+							self.value = self.dependency.issuperset(self.methodParameter)
+							print('issuperset checked')
+						elif self.method is 'symmetric_difference':
+							self.value = Set(self.dependency.symmetric_difference(self.methodParameter))
+						elif self.method is 'union':
+							self.value = Set(self.dependency.union(self.methodParameter))
+					except:		#Case where the methodParameter isn't set
+						raise InvalidSubscriptionError("methodParameter not set")
+
 			elif self.method is '':
 				self.value = self.dependency
 			elif self.method is not '':	#Case when self.method is sent, but it is illegal/not defined
