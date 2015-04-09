@@ -170,13 +170,19 @@ class Observe:
 				raise InvalidSubscriptionError("%s method on this object isn't applicable"%self.method)
 
 		elif isinstance(self.underlyingValue, (int, float, bool)):
-			if self.method in ['not']:
+			if self.method in ['not', '~']:
 				if self.method is 'not':
 					#print("Entered not case of int, float, bool")
 					try:
 						self.value = not(self.dependency.value)
 					except:
 						raise InvalidSubscriptionError("Can't have a not method on a first-level Observe object") #self.dependency is used instead of self.dependency.value, since there is no value attribute to self.dependency, since self.dependency itself is either an int, float, or bool
+				if self.method is '~':
+					try:
+						self.value = ~self.dependency.value
+					except:
+						raise InvalidSubscriptionError("Can't have ~ on a first-level Observe object")
+
 			elif self.method is '':
 				#print("entered case where method is null")
 				self.value = self.dependency
@@ -450,6 +456,10 @@ def createSetInPrecedence(operatorsList):
 	if '**' in operatorsList:
 		newOperatorList.append('**')
 		##print("newOperatorList is %s"%newOperatorList)
+	#if '~' in operatorsList:	#This is a unary operand. Should be on the observe object
+	#	newOperatorList.append('~')
+
+
 	if '*' in operatorsList:
 		newOperatorList.append('*')
 		##print("newOperatorList is %s"%newOperatorList)
@@ -468,6 +478,21 @@ def createSetInPrecedence(operatorsList):
 	if '-' in operatorsList:
 		newOperatorList.append('-')
 		##print("newOperatorList is %s"%newOperatorList)
+
+	if '>>' in operatorsList:
+		newOperatorList.append('>>')
+	if '<<' in operatorsList:
+		newOperatorList.append('<<')
+	if '&' in operatorsList:
+		newOperatorList.append('&')
+	if '^' in operatorsList:
+		newOperatorList.append('^')
+	if '|' in operatorsList:
+		newOperatorList.append('|')
+	if 'or' in operatorsList:
+		newOperatorList.append('or')
+	if 'and' in operatorsList:
+		newOperatorList.append('and')
 	return(newOperatorList)				#Returns the set of operators in the order of precedence
 
 def evaluateEquation(alteredList, operator, OperatorsList):
@@ -524,6 +549,22 @@ def evaluateExpression(firstOperand, secondOperand, operator):
 			result = firstOperand + secondOperand
 		elif operator is '%':
 			result = firstOperand%secondOperand
+		elif operator is '<<':
+			result = firstOperand<<secondOperand
+		elif operator is '>>':
+			result = firstOperand>>secondOperand
+		elif operator is '&':
+			result = firstOperand & secondOperand
+		elif operator is '|':
+			result = firstOperand | secondOperand
+		#elif operator is '~':
+		#	result = firstOperand ~ secondOperand
+		elif operator is '^':
+			result = firstOperand ^ secondOperand
+		elif operator is 'and':
+			result = firstOperand and secondOperand
+		elif operator is 'or':
+			result = firstOperand or secondOperand
 		else:
 			raise TypeError("No %s operator found"%operator)
 	finally:
