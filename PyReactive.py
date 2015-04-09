@@ -120,10 +120,11 @@ class Observe:
 			#Case where value is a native mutable/immutable data type. If it is a mutable data type, ignore it and raise an exception. Don't allow mutable data types. This is only for immutable data types.
 			#self.dependency = None
 			self.value = self.dependency
-			if method is 'not':
-				print("method is not")
-			elif method is not '':
-				raise InvalidSubscriptionError("The method %s is not applicable on native data types"%method)
+			#if method is 'not' or method is '~' or method is 'len' :
+				#print("method is not")
+			#	pass
+			#elif method is not '':
+			#	raise InvalidSubscriptionError("The method %s is not applicable on native data types"%method)
 			self.method = method
 			dependencyGraph[self.id] = []
 			immutableList.append(self)		#Append to immutableList
@@ -163,9 +164,9 @@ class Observe:
 			#print("isinstance immutables true, hence entered this if-block")
 			if self.method in ['len']:		#First check to sift away all methods that don't belong to the object
 				if self.method is 'len':	#Second check to iterate through each of the possibilities. It doesn't make sense here, but refer to the List section underneath. Doing this so as to ensure a unified coding pattern
-					self.value = len(self.dependency.value)
+					self.value = len(self.underlyingValue)
 			elif self.method is '':			#If there is no method mentioned
-				self.value = self.dependency.value
+				self.value = self.dependency
 			elif self.method is not '':		#If the mentioned method does not belong to the object, raise an exception.
 				raise InvalidSubscriptionError("%s method on this object isn't applicable"%self.method)
 
