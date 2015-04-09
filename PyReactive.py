@@ -255,27 +255,24 @@ class Observe:
 				elif self.method in ['difference', 'intersection', 'isdisjoint', 'issubset', 'issuperset', 'symmetric_difference', 'union']:
 
 					try:
-						if self.id in dependencyGraph[self.methodParameter.id]:
-							print("self.methodParameter dependency already included")
-						else:
+						if self.id not in dependencyGraph[self.methodParameter.id]:
 							dependencyGraph[self.methodParameter.id].append(self.id)
 					except:
 						raise InvalidSubscriptionError("methodParameter passed is not in the right format. Check again.")
 
 					try:	#Process where self.method is applied
-
 						if self.method is 'difference':
 							self.value = Set(self.dependency.difference(self.methodParameter))
 						elif self.method is 'intersection':
 							self.value = Set(self.dependency.intersection(self.methodParameter))
 						elif self.method is 'isdisjoint':
 							self.value = self.dependency.isdisjoint(self.methodParameter)
-							print("isdisjoint checked")
+							#print("isdisjoint checked")
 						elif self.method is 'issubset':
 							self.value = self.dependency.issubset(self.methodParameter)
 						elif self.method is 'issuperset':
 							self.value = self.dependency.issuperset(self.methodParameter)
-							print('issuperset checked')
+							#print('issuperset checked')
 						elif self.method is 'symmetric_difference':
 							self.value = Set(self.dependency.symmetric_difference(self.methodParameter))
 						elif self.method is 'union':
