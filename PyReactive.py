@@ -173,7 +173,10 @@ class Observe:
 			if self.method in ['not']:
 				if self.method is 'not':
 					print("Entered not case of int, float, bool")
-					self.value = not(self.dependency)		#self.dependency is used instead of self.dependency.value, since there is no value attribute to self.dependency, since self.dependency itself is either an int, float, or bool
+					try:
+						self.value = not(self.dependency.value)
+					except:
+						raise InvalidSubscriptionError("Can't have a not method on a first-level Observe object") #self.dependency is used instead of self.dependency.value, since there is no value attribute to self.dependency, since self.dependency itself is either an int, float, or bool
 			elif self.method is '':
 				print("entered case where method is null")
 				self.value = self.dependency
