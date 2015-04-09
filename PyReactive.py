@@ -153,7 +153,7 @@ class Observe:
 
 
 		if isinstance(self.underlyingValue, Observe):			#This is the case when there's an Observable, and it needs to be distilled down to either
-			print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
+			#print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
 			self.underlyingValue = self.dependency.value 		#This is done so as to assign the underlyingValue to dependency.value --> this would mean that currently, the underlyingValue is modified to be a List object rather than an Observe object. For further clarification, in the interpreter, check the values of type(self.underlyingValue) and type(self.dependency.value). The former yields an Observe and the latter yields a BDLS. This is so that the further actions can be operated on BDLS, rather than on the Observable, since an Observable does not have the necessary methods that a BDLS has.
 
 
@@ -172,13 +172,13 @@ class Observe:
 		elif isinstance(self.underlyingValue, (int, float, bool)):
 			if self.method in ['not']:
 				if self.method is 'not':
-					print("Entered not case of int, float, bool")
+					#print("Entered not case of int, float, bool")
 					try:
 						self.value = not(self.dependency.value)
 					except:
 						raise InvalidSubscriptionError("Can't have a not method on a first-level Observe object") #self.dependency is used instead of self.dependency.value, since there is no value attribute to self.dependency, since self.dependency itself is either an int, float, or bool
 			elif self.method is '':
-				print("entered case where method is null")
+				#print("entered case where method is null")
 				self.value = self.dependency
 			elif self.method is not '':
 				raise InvalidSubscriptionError("%s method on this object isn't applicable"%self.method)
@@ -287,13 +287,13 @@ class Observe:
 		################ Check for type(self.dependency) here. If the type is List, then the methods are different, and if the type is Set, the methods are different. If the declared method isn't associated with the object, raise an Exception
 
 
-		self.onchange()
+		self.notify()
 
 		for element in dependencyGraph[self.id]:
 			idVariableDict[element].update()
 		self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
 
-	def onchange(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
+	def notify(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
 		"""This method is supposed to be overridden to perform anything of value whenever a change occurs"""
 		pass
 		#print("Observable changed and value is %s"%self.value)
@@ -385,9 +385,9 @@ class Subscribe:
 
 
 			#Set self.value somewhere here
-		self.onchange()
+		self.notify()
 
-	def onchange(self):
+	def notify(self):
 		pass
 
 	def append(self, **args):
