@@ -491,20 +491,21 @@ If **result** is to subscribe to **a + b * 5 - c ** 0.87 + d - e/6**, the same A
 ```
 
 As of this moment, the **supported operators** are: 
-**+** (Addition), 
-**-** (Subtraction), 
-**/** (Division), 
-__\*__ (Multiplication),
-__\*\*__ (Exponent),
-__%__ (Modulus),
-__//__ (Floor Division),
-**<<** (Binary Left Shift), 
-**>>** (Binary Right Shift),
-**&** (Binary/Bitwise AND), 
-**|** (Binary/Bitwise OR),
-**^** (Binary/Bitwise XOR),
-**'and'** (Logical AND),
-**'or'** (Logical OR).
+1. **+** (Addition), 
+2. **-** (Subtraction), 
+3. **/** (Division), 
+4. __\*__ (Multiplication),
+5. __\*\*__ (Exponent),
+6. __%__ (Modulus),
+7. __//__ (Floor Division),
+8. **<<** (Binary Left Shift), 
+9. **>>** (Binary Right Shift),
+10. **&** (Binary/Bitwise AND), 
+11. **|** (Binary/Bitwise OR),
+12. **^** (Binary/Bitwise XOR),
+13. **'and'** (Logical AND),
+14. **'or'** (Logical OR).
+
 
 Additionally, one can subscribe to other data types such as ByteArrays, Lists, Dicts, Sets, Observe objects, Subscribe objects.
 
