@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "pyreactive",
-    version = "0.1.1",
+    version = "0.1.2",
     author = "Pratheek Adidela",
     author_email = "apratheek@gmail.com",
     description = "A Reactive Programming module for Python 2 and 3",
@@ -10,7 +10,7 @@ setup(
     keywords = "Reactive Paradigm Observables Subscriptions",
     url = "https://github.com/apratheek/PyReactive",
     packages = ['pyreactive'],
-    long_description = open("README.rst").read(),
+    long_description = open("README.txt").read(),
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
