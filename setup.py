@@ -10,7 +10,7 @@ setup(
     keywords = "Reactive Paradigm Observables Subscriptions",
     url = "https://github.com/apratheek/PyReactive",
     packages = ['pyreactive'],
-    long_description = open("README").read(),
+    long_description = open("README.md").read(),
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
