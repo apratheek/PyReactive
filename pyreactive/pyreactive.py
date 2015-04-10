@@ -1,5 +1,5 @@
 import uuid
-from mutables import *
+from .mutables import *
 
 dependencyGraph = {}						#Define a central dependency graph that holds all relations between mutables
 idVariableDict = {}							#Define a dictionary that maps uuids to the relevant object eg: idVariableDict[self.id] = self
