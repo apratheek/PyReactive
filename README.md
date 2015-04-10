@@ -44,9 +44,28 @@ In this paradigm, variables are OBSERVED and/or SUBSCRIBED to. What I mean by **
 The above example shows how reactive programming works. It observes variables, and whenever there's a subscription, it automatically computes the operation everytime there's a change in the underlying value of the variable. This example shows how beautiful code can get by utilizing this wonderful paradigm. No more redundant declarations. Declare once, use forever. Okay, I might be getting carried away now.
 
 ####The nuts and bolts (and other definitions)
-The following section describes the various definitions of terms used in the module and the corresponding APIs. For all the code to work, until I write a setup.py file, use this module as:
+The following section describes the various definitions of terms used in the module and the corresponding APIs. For all the code to work, install it first using 
+
+CAVEAT: I'd strongly recommend using virtualenv. If you haven't yet installed it, install it as follows:
 ```python
-from PyReactive import *
+pip3 install virtualenv
+virtualenv venv/
+source venv/bin/activate
+```
+
+1. pip
+```python
+(venv): sudo pip3 install pyreactive
+```
+2. clone the code using git and
+```python
+(venv): cd PyReactive/
+(venv): python3 setup.py install
+```
+
+After installing, use this module as:
+```python
+from pyreactive import *
 ```
 
 #####Mutables
