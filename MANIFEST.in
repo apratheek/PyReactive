@@ -1,2 +1,2 @@
-include README.txt LICENSE
+include README.rst LICENSE
 recursive-include pyreactive/
