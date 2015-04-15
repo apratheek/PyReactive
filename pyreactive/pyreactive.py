@@ -322,11 +322,11 @@ class Observe:
 		################ Check for type(self.dependency) here. If the type is List, then the methods are different, and if the type is Set, the methods are different. If the declared method isn't associated with the object, raise an Exception
 
 
-		self.notify()
-
 		for element in dependencyGraph[self.id]:
 			idVariableDict[element].update()
+		
 		self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
+		self.notify()
 
 	def notify(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
 		"""This method is supposed to be overridden to perform anything of value whenever a change occurs"""
