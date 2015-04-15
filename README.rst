@@ -76,6 +76,8 @@ Methods on Subscribe
 
 Change log:
 -----------
+**v0.1.4** - Changed notify() call in Observe class to an appropriate location (15/04/15)
+
 **v0.1.3** - Updated pypi README in .rst (11/04/15)
 
 **v0.1.2** - Published README not parsed on pypi (10/04/15)
