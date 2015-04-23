@@ -212,14 +212,19 @@ class Observe:
 					del temp
 				elif self.method is 'lastel':
 					#print("self.underlyingValue is %s"%self.underlyingValue)
-					temp = self.underlyingValue[-1]
+					try:
+						temp = self.underlyingValue[-1]
+					except:
+						temp = None
 					self.value = temp
 					del temp
 
 				elif self.method is 'firstel':
 					#print("self.underlyingValue is %s"%self.underlyingValue)
-					temp = self.underlyingValue[0]
-					self.value = temp
+					try:
+						temp = self.underlyingValue[0]
+					except:
+						self.value = temp
 					del temp
 				elif self.method is 'set':
 					#print("self.underlyingValue is %s"%self.underlyingValue)
