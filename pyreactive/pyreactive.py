@@ -224,7 +224,8 @@ class Observe:
 					try:
 						temp = self.underlyingValue[0]
 					except:
-						self.value = temp
+						temp = None
+					self.value = temp
 					del temp
 				elif self.method is 'set':
 					#print("self.underlyingValue is %s"%self.underlyingValue)
