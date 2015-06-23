@@ -16,6 +16,7 @@ class List(List):
 		#print(args)
 		
 		
+		
 		self.subLevelList = args[:]		#List that consists of all elements one level below the current level
 		self.allDependencies = []		#List that holds all the dependencies
 		#for i in args:
@@ -23,19 +24,50 @@ class List(List):
 			#Need to recursively resolve dependencies
 			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
 			
-			try:
+			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
+				print("Object is BDLS")
+				#This has id, but no .value attribute
+				#Open this node and search if it depends on other lists
+				self.allDependencies.append(self.subLevelList[0].id)
+				for element in self.subLevelList[0]:
+					if isinstance(element, (ByteArray, Dict, List, Set, Observe, Subscribe)):
+						self.allDependencies.append(element.id)
+						self.subLevelList.append(element)
+						
+				self.subLevelList.pop(0)
+			
+			elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
+				print("Object is Observe/Subscribe")
+				#This has id and .value attribute
+				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
+				self.allDependencies.append(element.id)
+				self.subLevelList.pop(0)
+			
+			else:
+				#This is a normal object. Discard it from the list
+				print("Python Object. Discarding it")
+				self.subLevelList.pop(0)
+				#pass
+			
+			
+			#try:
 				#Check if i is a PyReactive object. Use the isinstance method instead of a try catch. 
-				if self.subLevelList[0].id in dependencyGraph:
+			#	if self.subLevelList[0].id in dependencyGraph:
 					#This is a PyReactive Object. Recursively, resolve its dependencies
-					print("PyReactive Object")
+			#		print("PyReactive Object")
 					
 					#Open the node and search it for other PyReactive Objects.
 					
 					#Here, check if self.subLevelList[0] is BDSL or an Observe object or a Subscribe object
-			except:
+			#except:
 				#The element is neither BDLS nor Observe/Subscribe. Hence, discard it
-				self.subLevelList.pop(0)
-			print(i)
+			#	self.subLevelList.pop(0)
+			#print(i)
+		#dependencyGraph[self.id] = self.allDependencies[:]
+		
+		for i in self.allDependencies:
+			dependencyGraph[i].append(self.id)
+		
 		super(List, self).__init__(args)
 		#At __init__, set up an entry in the dependencyGraph
 
@@ -45,7 +77,12 @@ class List(List):
 	def onchange(self):
 		#print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
-			idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			try:
+				#When element is Observe/Subscribe
+				idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			except:
+				#When element is BDLS
+				idVariableDict[element].onchange()
 
 
 class Dict(Dict):
