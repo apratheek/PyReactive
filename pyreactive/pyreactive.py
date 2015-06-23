@@ -13,6 +13,29 @@ class List(List):
 		self.id = uuid.uuid4()
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
+		#print(args)
+		
+		
+		self.subLevelList = args[:]		#List that consists of all elements one level below the current level
+		self.allDependencies = []		#List that holds all the dependencies
+		#for i in args:
+		while self.subLevelList:
+			#Need to recursively resolve dependencies
+			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
+			
+			try:
+				#Check if i is a PyReactive object. Use the isinstance method instead of a try catch. 
+				if self.subLevelList[0].id in dependencyGraph:
+					#This is a PyReactive Object. Recursively, resolve its dependencies
+					print("PyReactive Object")
+					
+					#Open the node and search it for other PyReactive Objects.
+					
+					#Here, check if self.subLevelList[0] is BDSL or an Observe object or a Subscribe object
+			except:
+				#The element is neither BDLS nor Observe/Subscribe. Hence, discard it
+				self.subLevelList.pop(0)
+			print(i)
 		super(List, self).__init__(args)
 		#At __init__, set up an entry in the dependencyGraph
 
