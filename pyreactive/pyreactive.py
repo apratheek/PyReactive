@@ -45,6 +45,7 @@ class List(List):
 			
 			else:
 				#This is a normal object. Discard it from the list
+				#Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
 				print("Python Object. Discarding it")
 				self.subLevelList.pop(0)
 				#pass
