@@ -103,7 +103,20 @@ class Dict(Dict):
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
 		
-		self.subLevelList = args[:]		#List that consists of all elements one level below the current level
+		
+		#####################################
+		#In dicts, keys cannot be set/list/dict/bytearray. Store all the values in self.subLevelList. Then run the search, because it would then be similar to a search on a List.
+		#####################################
+		
+		#print("args are %s"%args)
+		
+		self.subLevelList = []
+		
+		for key in args:
+			self.subLevelList.append(args[key])
+			#Push all the values in a key:value pair to a list.
+		
+		#self.subLevelList = dict(args)		#List that consists of all elements one level below the current level
 		self.allDependencies = []		#List that holds all the dependencies
 		#for i in args:
 		while self.subLevelList:
