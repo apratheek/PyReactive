@@ -192,59 +192,12 @@ class Set(Set):
 
 class ByteArray(ByteArray):
 	def __init__(self, *args):
-		
+		super(ByteArray, self).__init__(*args)
 		#At __init__, set up an entry in the dependencyGraph
 		self.id = uuid.uuid4()
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
-		
-		
-		self.subLevelList = args[:]		#List that consists of all elements one level below the current level
-		self.allDependencies = []		#List that holds all the dependencies
-		#for i in args:
-		while self.subLevelList:
-			#Need to recursively resolve dependencies
-			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
-			
-			print("self.subLevelList is %s"%self.subLevelList)
-			
-			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
-				print("Object is BDLS")
-				#This has id, but no .value attribute
-				#Open this node and search if it depends on other lists
-				self.allDependencies.append(self.subLevelList[0].id)
-				for element in self.subLevelList[0]:
-					if isinstance(element, (ByteArray, Dict, List, Set, Observe, Subscribe)):
-						self.allDependencies.append(element.id)
-						self.subLevelList.append(element)
-						
-				self.subLevelList.pop(0)
-			
-			elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
-				print("Object is Observe/Subscribe")
-				#This has id and .value attribute
-				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
-				self.allDependencies.append(element.id)
-				self.subLevelList.pop(0)
-			
-			else:
-				#This is a normal object. Discard it from the list
-				#Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
-				
-				if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
-					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
-					for element in self.subLevelList[0]:
-						print("element in ELSE is %s"%element)
-						self.subLevelList.append(element)
-				
-				print("Python Object. Discarding it")
-				self.subLevelList.pop(0)
-		
-		for i in self.allDependencies:
-			dependencyGraph[i].append(self.id)
-		
-		
-		super(ByteArray, self).__init__(*args)
+
 
 	def onchange(self):
 		#print("List object has changed --> onchange method called")
@@ -273,7 +226,7 @@ class Observe:
 			c) lastel - always holds the last element of the List. methodParameter is invalid
 			d) firstel - always holds the first element of the list. methodParameter is invalid
 			e) sort - always holds the sorted List. methodParameter could be the sort key
-			f) slice - always holds the sliced part of the List. methodParamter is only a slice object, e.g. methodParameter = slice(0, x, y)
+			f) slice - always holds the sliced part of the List. methodParameter is only a slice object, e.g. methodParameter = slice(0, x, y)
 			g) set - always holds the unique elements in the List. methodParameter is invalid
 
 		2. In case of Set
@@ -510,9 +463,44 @@ class Observe:
 				raise InvalidSubscriptionError("Dict object doesn't have %s as the method parameter"%self.method)
 
 		elif isinstance(self.underlyingValue, ByteArray):
-			if self.method in ['len']:
+			if self.method in ['len', 'count', 'decode', 'endswith', 'find', 'index', 'isalnum', 'isalpha', 'isdigit', 'islower', 'isupper', 'lower', 'replace', 'reverse', 'slice', 'startswith', 'upper']:
 				if self.method is 'len':
 					self.value = len(self.underlyingValue)
+				elif self.method is 'count':
+					self.value = self.underlyingValue.count(self.methodParameter)
+				elif self.method is 'decode':
+					self.value = self.underlyingValue.decode(self.methodParameter)
+				elif self.method is 'endswith':
+					self.value = self.underlyingValue.endswith(self.methodParameter)
+				elif self.method is 'find':
+					self.value = self.underlyingValue.find(self.methodParameter)
+				elif self.method is 'index':
+					self.value = self.underlyingValue.index(self.methodParameter)
+				elif self.method is 'isalnum':
+					self.value = self.underlyingValue.isalnum()
+				elif self.method is 'isalpha':
+					self.value = self.underlyingValue.isalpha()
+				elif self.method is 'isdigit':
+					self.value = self.underlyingValue.isdigit()
+				elif self.method is 'islower':
+					self.value = self.underlyingValue.islower()
+				elif self.method is 'isupper':
+					self.value = self.underlyingValue.isupper()
+				elif self.method is 'lower':
+					self.value = self.underlyingValue.lower()
+				elif self.method is 'replace':
+					self.value = self.underlyingValue.replace(self.methodParameter[0], self.methodParameter[1])
+				elif self.method is 'reverse':
+					self.temp = self.underlyingValue[:]
+					self.temp.reverse()
+					self.value = self.temp[:]
+					del self.temp
+				elif self.method is 'slice':
+					self.value = self.underlyingValue[self.methodParameter]
+				elif self.method is 'startswith':
+					self.value = self.underlyingValue.startswith(self.methodParameter)
+				elif self.method is 'upper':
+					self.value = self.underlyingValue.upper()
 			elif self.method is '':
 				self.value = self.dependency
 			elif self.method is not '':
