@@ -97,41 +97,200 @@ class List(List):
 
 class Dict(Dict):
 	def __init__(self, args):
-		super(Dict, self).__init__(args)
+		
 		#At __init__, set up an entry in the dependencyGraph
 		self.id = uuid.uuid4()
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
+		
+		self.subLevelList = args[:]		#List that consists of all elements one level below the current level
+		self.allDependencies = []		#List that holds all the dependencies
+		#for i in args:
+		while self.subLevelList:
+			#Need to recursively resolve dependencies
+			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
+			
+			print("self.subLevelList is %s"%self.subLevelList)
+			
+			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
+				print("Object is BDLS")
+				#This has id, but no .value attribute
+				#Open this node and search if it depends on other lists
+				self.allDependencies.append(self.subLevelList[0].id)
+				for element in self.subLevelList[0]:
+					if isinstance(element, (ByteArray, Dict, List, Set, Observe, Subscribe)):
+						self.allDependencies.append(element.id)
+						self.subLevelList.append(element)
+						
+				self.subLevelList.pop(0)
+			
+			elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
+				print("Object is Observe/Subscribe")
+				#This has id and .value attribute
+				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
+				self.allDependencies.append(element.id)
+				self.subLevelList.pop(0)
+			
+			else:
+				#This is a normal object. Discard it from the list
+				#Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
+				
+				if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
+					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
+					for element in self.subLevelList[0]:
+						print("element in ELSE is %s"%element)
+						self.subLevelList.append(element)
+				
+				print("Python Object. Discarding it")
+				self.subLevelList.pop(0)
+		
+		for i in self.allDependencies:
+			dependencyGraph[i].append(self.id)
+		
+		super(Dict, self).__init__(args)
 
 	def onchange(self):
+		#print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
-			idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			try:
+				#When element is Observe/Subscribe
+				idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			except:
+				#When element is BDLS
+				idVariableDict[element].onchange()
 
 
 class Set(Set):
 	def __init__(self, args):
-		super(Set, self).__init__(args)
+		
 		#At __init__, set up an entry in the dependencyGraph
 		self.id = uuid.uuid4()
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
+		
+		
+		#self.subLevelList = list(set(args))		#Set that consists of all elements one level below the current level. Converting this into a list to make iterations easier. Might not be the most efficient method.
+		#self.allDependencies = []		#List that holds all the dependencies
+		#for i in args:
+		#while self.subLevelList:
+			#Need to recursively resolve dependencies
+			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
+			
+		#	print("self.subLevelList is %s"%self.subLevelList)
+			
+		#	if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
+		#		print("Object is BDLS")
+				#This has id, but no .value attribute
+				#Open this node and search if it depends on other lists
+		#		self.allDependencies.append(self.subLevelList[0].id)
+		#		for element in self.subLevelList[0]:
+		#			if isinstance(element, (ByteArray, Dict, List, Set, Observe, Subscribe)):
+		#				self.allDependencies.append(element.id)
+		#				self.subLevelList.append(element)
+						
+		#		self.subLevelList.pop(0)
+			
+		#	elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
+		#		print("Object is Observe/Subscribe")
+				#This has id and .value attribute
+				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
+		#		self.allDependencies.append(element.id)
+		#		self.subLevelList.pop(0)
+			
+		#	else:
+				#This is a normal object. Discard it from the list
+				#Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
+				
+		#		if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
+					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
+			#		for element in self.subLevelList[0]:
+			#			print("element in ELSE is %s"%element)
+			#			self.subLevelList.append(element)
+				
+			#	print("Python Object. Discarding it")
+			#	self.subLevelList.pop(0)
+		
+		#for i in self.allDependencies:
+		#	dependencyGraph[i].append(self.id)
+		
+		super(Set, self).__init__(args)
 
 	def onchange(self):
+		#print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
-			idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			try:
+				#When element is Observe/Subscribe
+				idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			except:
+				#When element is BDLS
+				idVariableDict[element].onchange()
 
 
 class ByteArray(ByteArray):
 	def __init__(self, *args):
-		super(ByteArray, self).__init__(*args)
+		
 		#At __init__, set up an entry in the dependencyGraph
 		self.id = uuid.uuid4()
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
+		
+		
+		self.subLevelList = args[:]		#List that consists of all elements one level below the current level
+		self.allDependencies = []		#List that holds all the dependencies
+		#for i in args:
+		while self.subLevelList:
+			#Need to recursively resolve dependencies
+			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
+			
+			print("self.subLevelList is %s"%self.subLevelList)
+			
+			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
+				print("Object is BDLS")
+				#This has id, but no .value attribute
+				#Open this node and search if it depends on other lists
+				self.allDependencies.append(self.subLevelList[0].id)
+				for element in self.subLevelList[0]:
+					if isinstance(element, (ByteArray, Dict, List, Set, Observe, Subscribe)):
+						self.allDependencies.append(element.id)
+						self.subLevelList.append(element)
+						
+				self.subLevelList.pop(0)
+			
+			elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
+				print("Object is Observe/Subscribe")
+				#This has id and .value attribute
+				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
+				self.allDependencies.append(element.id)
+				self.subLevelList.pop(0)
+			
+			else:
+				#This is a normal object. Discard it from the list
+				#Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
+				
+				if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
+					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
+					for element in self.subLevelList[0]:
+						print("element in ELSE is %s"%element)
+						self.subLevelList.append(element)
+				
+				print("Python Object. Discarding it")
+				self.subLevelList.pop(0)
+		
+		for i in self.allDependencies:
+			dependencyGraph[i].append(self.id)
+		
+		
+		super(ByteArray, self).__init__(*args)
 
 	def onchange(self):
+		#print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
-			idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			try:
+				#When element is Observe/Subscribe
+				idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+			except:
+				#When element is BDLS
+				idVariableDict[element].onchange()
 
 ##################################################################################################################################################################################
 
