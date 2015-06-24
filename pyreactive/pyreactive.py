@@ -24,6 +24,8 @@ class List(List):
 			#Need to recursively resolve dependencies
 			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
 			
+			print("self.subLevelList is %s"%self.subLevelList)
+			
 			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
 				print("Object is BDLS")
 				#This has id, but no .value attribute
@@ -46,6 +48,13 @@ class List(List):
 			else:
 				#This is a normal object. Discard it from the list
 				#Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
+				
+				if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
+					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
+					for element in self.subLevelList[0]:
+						print("element in ELSE is %s"%element)
+						self.subLevelList.append(element)
+				
 				print("Python Object. Discarding it")
 				self.subLevelList.pop(0)
 				#pass
