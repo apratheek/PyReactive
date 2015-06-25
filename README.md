@@ -574,6 +574,9 @@ Value hit the upper limit!
 ```
 
 #####Known Issues
+
+#####v0.2.0 has resolved this issue. Support for deep Lists, Dicts, ByteArrays, Sets, Observe objects has been introduced. This issue still persists in all versions before v0.2.0
+
 a)
 ```python
 >>>a = List([1,3,2])
@@ -588,6 +591,8 @@ a)
 {1: [1,3,2,9}
 ```
 Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding onchange method of c wouldn't work in this case. Will issue an update very soon.
+
+
 
 #####Further work:
 1. Open up access to other data types and objects such as those of numpy/scipy, etc.

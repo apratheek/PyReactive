@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "pyreactive",
-    version = "0.1.6",
+    version = "0.2.1",
     author = "Pratheek Adidela",
     author_email = "apratheek@gmail.com",
     description = "A Reactive Programming module for Python 2 and 3",

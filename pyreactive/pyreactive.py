@@ -13,7 +13,7 @@ class List(List):
 		self.id = uuid.uuid4()
 		dependencyGraph[self.id] = []
 		idVariableDict[self.id] = self
-		#print(args)
+		##print(args)
 		
 		
 		
@@ -24,10 +24,10 @@ class List(List):
 			#Need to recursively resolve dependencies
 			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
 			
-			print("self.subLevelList is %s"%self.subLevelList)
+			#print("self.subLevelList is %s"%self.subLevelList)
 			
 			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
-				print("Object is BDLS")
+				#print("Object is BDLS")
 				#This has id, but no .value attribute
 				#Open this node and search if it depends on other lists
 				self.allDependencies.append(self.subLevelList[0].id)
@@ -39,7 +39,7 @@ class List(List):
 				self.subLevelList.pop(0)
 			
 			elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
-				print("Object is Observe/Subscribe")
+				#print("Object is Observe/Subscribe")
 				#This has id and .value attribute
 				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
 				self.allDependencies.append(self.subLevelList[0].id)
@@ -52,10 +52,10 @@ class List(List):
 				if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
 					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
 					for element in self.subLevelList[0]:
-						print("element in ELSE is %s"%element)
+						#print("element in ELSE is %s"%element)
 						self.subLevelList.append(element)
 				
-				print("Python Object. Discarding it")
+				#print("Python Object. Discarding it")
 				self.subLevelList.pop(0)
 				#pass
 			
@@ -64,7 +64,7 @@ class List(List):
 				#Check if i is a PyReactive object. Use the isinstance method instead of a try catch. 
 			#	if self.subLevelList[0].id in dependencyGraph:
 					#This is a PyReactive Object. Recursively, resolve its dependencies
-			#		print("PyReactive Object")
+			#		#print("PyReactive Object")
 					
 					#Open the node and search it for other PyReactive Objects.
 					
@@ -72,7 +72,7 @@ class List(List):
 			#except:
 				#The element is neither BDLS nor Observe/Subscribe. Hence, discard it
 			#	self.subLevelList.pop(0)
-			#print(i)
+			##print(i)
 		#dependencyGraph[self.id] = self.allDependencies[:]
 		
 		for i in self.allDependencies:
@@ -81,11 +81,11 @@ class List(List):
 		super(List, self).__init__(args)
 		#At __init__, set up an entry in the dependencyGraph
 
-		#print(dependencyGraph)
-		##print("List initialised")
+		##print(dependencyGraph)
+		###print("List initialised")
 
 	def onchange(self):
-		#print("List object has changed --> onchange method called")
+		##print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
 			try:
 				#When element is Observe/Subscribe
@@ -108,7 +108,7 @@ class Dict(Dict):
 		#In dicts, keys cannot be set/list/dict/bytearray. Store all the values in self.subLevelList. Then run the search, because it would then be similar to a search on a List.
 		#####################################
 		
-		#print("args are %s"%args)
+		##print("args are %s"%args)
 		
 		self.subLevelList = []
 		
@@ -123,10 +123,10 @@ class Dict(Dict):
 			#Need to recursively resolve dependencies
 			#Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
 			
-			print("self.subLevelList is %s"%self.subLevelList)
+			#print("self.subLevelList is %s"%self.subLevelList)
 			
 			if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
-				print("Object is BDLS")
+				#print("Object is BDLS")
 				#This has id, but no .value attribute
 				#Open this node and search if it depends on other lists
 				self.allDependencies.append(self.subLevelList[0].id)
@@ -138,7 +138,7 @@ class Dict(Dict):
 				self.subLevelList.pop(0)
 			
 			elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
-				print("Object is Observe/Subscribe")
+				#print("Object is Observe/Subscribe")
 				#This has id and .value attribute
 				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
 				self.allDependencies.append(self.subLevelList[0].id)
@@ -151,10 +151,10 @@ class Dict(Dict):
 				if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
 					#THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
 					for element in self.subLevelList[0]:
-						print("element in ELSE is %s"%element)
+						#print("element in ELSE is %s"%element)
 						self.subLevelList.append(element)
 				
-				print("Python Object. Discarding it")
+				#print("Python Object. Discarding it")
 				self.subLevelList.pop(0)
 		
 		for i in self.allDependencies:
@@ -163,7 +163,7 @@ class Dict(Dict):
 		super(Dict, self).__init__(args)
 
 	def onchange(self):
-		#print("List object has changed --> onchange method called")
+		##print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
 			try:
 				#When element is Observe/Subscribe
@@ -200,7 +200,7 @@ class ByteArray(ByteArray):
 
 
 	def onchange(self):
-		#print("List object has changed --> onchange method called")
+		##print("List object has changed --> onchange method called")
 		for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
 			try:
 				#When element is Observe/Subscribe
@@ -256,7 +256,7 @@ class Observe:
 
 				self.method = method
 				#self.value = self.dependency			#This dependency can be taken up to the first "try" case itself and this update method can be entirely removed.
-				#print("Setting dependencyGraph attribute")
+				##print("Setting dependencyGraph attribute")
 				dependencyGraph[dependency.id].append(self.id)				################################### Key assignment. This is where the actual dependency is stated.
 				dependencyGraph[self.id] = []
 				self.update()									#This sets self.value in the update method
@@ -267,7 +267,7 @@ class Observe:
 			#self.dependency = None
 			self.value = self.dependency
 			#if method is 'not' or method is '~' or method is 'len' :
-				#print("method is not")
+				##print("method is not")
 			#	pass
 			#elif method is not '':
 			#	raise InvalidSubscriptionError("The method %s is not applicable on native data types"%method)
@@ -300,14 +300,14 @@ class Observe:
 
 
 		if isinstance(self.underlyingValue, Observe):			#This is the case when there's an Observable, and it needs to be distilled down to either
-			#print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
+			##print("isinstance Observe true. Hence changing underlyingValue to dependency.value")
 			self.underlyingValue = self.dependency.value 		#This is done so as to assign the underlyingValue to dependency.value --> this would mean that currently, the underlyingValue is modified to be a List object rather than an Observe object. For further clarification, in the interpreter, check the values of type(self.underlyingValue) and type(self.dependency.value). The former yields an Observe and the latter yields a BDLS. This is so that the further actions can be operated on BDLS, rather than on the Observable, since an Observable does not have the necessary methods that a BDLS has.
 
 
 		########################## WRITE CODE FOR HANDLING METHOD ATTRIBUTE HERE
 
 		if isinstance(self.underlyingValue, (str, tuple, frozenset)):
-			#print("isinstance immutables true, hence entered this if-block")
+			##print("isinstance immutables true, hence entered this if-block")
 			if self.method in ['len']:		#First check to sift away all methods that don't belong to the object
 				if self.method is 'len':	#Second check to iterate through each of the possibilities. It doesn't make sense here, but refer to the List section underneath. Doing this so as to ensure a unified coding pattern
 					self.value = len(self.underlyingValue)
@@ -319,7 +319,7 @@ class Observe:
 		elif isinstance(self.underlyingValue, (int, float, bool)):
 			if self.method in ['not', '~']:
 				if self.method is 'not':
-					#print("Entered not case of int, float, bool")
+					##print("Entered not case of int, float, bool")
 					try:
 						self.value = not(self.dependency.value)
 					except:
@@ -331,13 +331,13 @@ class Observe:
 						raise InvalidSubscriptionError("Can't have ~ on a first-level Observe object")
 
 			elif self.method is '':
-				#print("entered case where method is null")
+				##print("entered case where method is null")
 				self.value = self.dependency
 			elif self.method is not '':
 				raise InvalidSubscriptionError("%s method on this object isn't applicable"%self.method)
 
 		elif isinstance(self.underlyingValue, List):
-			#print("isinstance List true, hence entered this if-block")
+			##print("isinstance List true, hence entered this if-block")
 			#Handle the methods of List
 			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'slice', 'set', 'len', 'sum', 'max', 'min']:
 				#Found self.method in the defined additional method for List
@@ -357,7 +357,7 @@ class Observe:
 					self.value = List(temp[:])
 					del temp
 				elif self.method is 'lastel':
-					#print("self.underlyingValue is %s"%self.underlyingValue)
+					##print("self.underlyingValue is %s"%self.underlyingValue)
 					try:
 						temp = self.underlyingValue[-1]
 					except:
@@ -366,7 +366,7 @@ class Observe:
 					del temp
 
 				elif self.method is 'firstel':
-					#print("self.underlyingValue is %s"%self.underlyingValue)
+					##print("self.underlyingValue is %s"%self.underlyingValue)
 					try:
 						temp = self.underlyingValue[0]
 					except:
@@ -374,14 +374,14 @@ class Observe:
 					self.value = temp
 					del temp
 				elif self.method is 'set':
-					#print("self.underlyingValue is %s"%self.underlyingValue)
+					##print("self.underlyingValue is %s"%self.underlyingValue)
 					temp = self.underlyingValue[:]
 					temp = set(temp)
 					self.value = temp.copy()
 					del temp
 
 				elif self.method is 'slice':
-					#print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
+					##print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
 					self.value = self.underlyingValue[self.methodParameter]
 
 				elif self.method is 'sum':
@@ -401,7 +401,7 @@ class Observe:
 				raise InvalidSubscriptionError("List object doesn't have %s as the method parameter"%self.method)
 
 		elif isinstance(self.underlyingValue, Set):
-			#print("There's nothing to Observe in a Set")
+			##print("There's nothing to Observe in a Set")
 			#if self.method in ['issubset', 'issuperset', 'isdisjoint']:
 			#	if self.method is 'issubset':
 
@@ -435,12 +435,12 @@ class Observe:
 							self.value = Set(self.dependency.intersection(self.methodParameter))
 						elif self.method is 'isdisjoint':
 							self.value = self.dependency.isdisjoint(self.methodParameter)
-							#print("isdisjoint checked")
+							##print("isdisjoint checked")
 						elif self.method is 'issubset':
 							self.value = self.dependency.issubset(self.methodParameter)
 						elif self.method is 'issuperset':
 							self.value = self.dependency.issuperset(self.methodParameter)
-							#print('issuperset checked')
+							##print('issuperset checked')
 						elif self.method is 'symmetric_difference':
 							self.value = Set(self.dependency.symmetric_difference(self.methodParameter))
 						elif self.method is 'union':
@@ -457,7 +457,7 @@ class Observe:
 				raise InvalidSubscriptionError("Set object doesn't have %s as the method parameter"%self.method)
 
 		elif isinstance(self.underlyingValue, Dict):
-			#print("isinstance Dict is true, hence entered the Corresponding if-block")
+			##print("isinstance Dict is true, hence entered the Corresponding if-block")
 			if self.method in ['key', 'len', 'sum', 'max', 'min']:				#Keep this so that it can be extended easily to acoomodate other methods in the future
 				if self.method is 'key':
 					if self.methodParameter is None:
@@ -581,7 +581,7 @@ class Observe:
 
 		#while isinstance(localValue, (ByteArray, Dict, List, Set)):			#Case where the underlying dependency belongs to BDLS
 		#	localValue = localValue
-		#print("Calling update method of Observable")
+		##print("Calling update method of Observable")
 
 		################ Check for type(self.dependency) here. If the type is List, then the methods are different, and if the type is Set, the methods are different. If the declared method isn't associated with the object, raise an Exception
 
@@ -595,7 +595,7 @@ class Observe:
 	def notify(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
 		"""This method is supposed to be overridden to perform anything of value whenever a change occurs"""
 		pass
-		#print("Observable changed and value is %s"%self.value)
+		##print("Observable changed and value is %s"%self.value)
 
 	def __repr__(self):			#This is the killer method! Without this, my life and architecture would've been ludicrously tough. Is this the golden bullet?
 		return("%s"%self.value)
@@ -748,29 +748,29 @@ def createSetInPrecedence(operatorsList):
 	#Check for all operators here. In future, this can accomodate more operators
 	if '**' in operatorsList:
 		newOperatorList.append('**')
-		##print("newOperatorList is %s"%newOperatorList)
+		####print("newOperatorList is %s"%newOperatorList)
 	#if '~' in operatorsList:	#This is a unary operand. Should be on the observe object
 	#	newOperatorList.append('~')
 
 
 	if '*' in operatorsList:
 		newOperatorList.append('*')
-		##print("newOperatorList is %s"%newOperatorList)
+		####print("newOperatorList is %s"%newOperatorList)
 	if '/' in operatorsList:
 		newOperatorList.append('/')
-		##print("newOperatorList is %s"%newOperatorList)
+		###print("newOperatorList is %s"%newOperatorList)
 	if '%' in operatorsList:
 		newOperatorList.append('%')
-		##print("newOperatorList is %s"%newOperatorList)
+		###print("newOperatorList is %s"%newOperatorList)
 	if '//' in operatorsList:
 		newOperatorList.append('//')
-		##print("newOperatorList is %s"%newOperatorList)
+		###print("newOperatorList is %s"%newOperatorList)
 	if '+' in operatorsList:
 		newOperatorList.append('+')
-		##print("newOperatorList is %s"%newOperatorList)
+		###print("newOperatorList is %s"%newOperatorList)
 	if '-' in operatorsList:
 		newOperatorList.append('-')
-		##print("newOperatorList is %s"%newOperatorList)
+		###print("newOperatorList is %s"%newOperatorList)
 
 	if '>>' in operatorsList:
 		newOperatorList.append('>>')
@@ -792,9 +792,9 @@ def evaluateEquation(alteredList, operator, OperatorsList):
 	count = OperatorsList.count(operator)
 	locOperator = 0
 	for i in range(count):
-		#print("Count value is %s"%i)
-		#print("locOperator is %s"%locOperator)
-		#print("OperatorsList is %s"%OperatorsList)
+		##print("Count value is %s"%i)
+		##print("locOperator is %s"%locOperator)
+		##print("OperatorsList is %s"%OperatorsList)
 		locOperator = OperatorsList.index(operator, locOperator)
 		#Found the index of the operator. Now, find the corresponding 2 variables in variablesToObserve and perform the operation
 		#Perform the evaluation of variablesToObserve[locOperator]-'operator'-variablesToObserve[locOperator+1] here, and replace the two variables with the evaluated result at the location - 'locOperator'
@@ -816,13 +816,13 @@ def evaluateEquation(alteredList, operator, OperatorsList):
 		alteredList.insert(locOperator, resultant)		#Insert the resultant at the location where the two operands have been removed
 		OperatorsList.remove(operator)					#Also remove the operator, since it has been evaluated
 
-		##print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
+		###print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
 		#locOperator += 1		#Increase the location index so as to find the next location of the current operator
 	return alteredList
 
 def evaluateExpression(firstOperand, secondOperand, operator):
 	#Check for the apposite operator, perform the operation nad return the result
-	##print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
+	###print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
 
 	if len(operator) >= 2:		#In case the operand consists of 2 characters. e.g., **,//, and other set operations. Greater than is used so as to leave a vacancy to extend future user-defined operators
 		operator = operator[:]
@@ -862,5 +862,5 @@ def evaluateExpression(firstOperand, secondOperand, operator):
 			raise TypeError("No %s operator found"%operator)
 	finally:
 
-		##print("Result in evaluateExpression is %s"%result)
+		###print("Result in evaluateExpression is %s"%result)
 		return result
