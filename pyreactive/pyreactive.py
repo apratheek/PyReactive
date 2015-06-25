@@ -339,7 +339,7 @@ class Observe:
 		elif isinstance(self.underlyingValue, List):
 			#print("isinstance List true, hence entered this if-block")
 			#Handle the methods of List
-			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'slice', 'set', 'len', 'sum']:
+			if self.method in ['count', 'reverse', 'sort', 'lastel', 'firstel', 'slice', 'set', 'len', 'sum', 'max', 'min']:
 				#Found self.method in the defined additional method for List
 				if self.method is 'count':
 					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
@@ -377,7 +377,7 @@ class Observe:
 					#print("self.underlyingValue is %s"%self.underlyingValue)
 					temp = self.underlyingValue[:]
 					temp = set(temp)
-					self.value = temp
+					self.value = temp.copy()
 					del temp
 
 				elif self.method is 'slice':
@@ -389,6 +389,10 @@ class Observe:
 
 				elif self.method is 'len':
 					self.value = len(self.underlyingValue)
+				elif self.method is 'max':
+					self.value = max(self.underlyingValue)
+				elif self.method is 'min':
+					self.value = min(self.underlyingValue)
 					   ########################################################################################################################################
 			elif self.method is '':
 				self.value = self.dependency
@@ -405,11 +409,17 @@ class Observe:
 
 			#	elif self.method is 'isdisjoint':
 
-			if self.method in ['len', 'difference', 'intersection', 'isdisjoint', 'issubset', 'issuperset', 'symmetric_difference', 'union', 'sum']:
+			if self.method in ['len', 'difference', 'intersection', 'isdisjoint', 'issubset', 'issuperset', 'symmetric_difference', 'union', 'sum', 'max', 'min']:
 				if self.method is 'len':
 					self.value = len(self.underlyingValue)
 				elif self.method is 'sum':
 					self.value = sum(self.underlyingValue)
+				
+				elif self.method is 'max':
+					self.value = max(self.underlyingValue)
+				elif self.method is 'min':
+					self.value = min(self.underlyingValue)
+				
 				elif self.method in ['difference', 'intersection', 'isdisjoint', 'issubset', 'issuperset', 'symmetric_difference', 'union']:
 
 					try:
@@ -435,6 +445,8 @@ class Observe:
 							self.value = Set(self.dependency.symmetric_difference(self.methodParameter))
 						elif self.method is 'union':
 							self.value = Set(self.dependency.union(self.methodParameter))
+						
+						
 
 					except:		#Case where the methodParameter isn't set
 						raise InvalidSubscriptionError("methodParameter not set")
@@ -446,7 +458,7 @@ class Observe:
 
 		elif isinstance(self.underlyingValue, Dict):
 			#print("isinstance Dict is true, hence entered the Corresponding if-block")
-			if self.method in ['key', 'len', 'sum']:				#Keep this so that it can be extended easily to acoomodate other methods in the future
+			if self.method in ['key', 'len', 'sum', 'max', 'min']:				#Keep this so that it can be extended easily to acoomodate other methods in the future
 				if self.method is 'key':
 					if self.methodParameter is None:
 						raise InvalidSubscriptionError("Can't observe a Dict with key as None")
@@ -457,13 +469,17 @@ class Observe:
 					self.value = len(self.underlyingValue)
 				elif self.method is 'sum':
 					self.value = sum(self.underlyingValue)
+				elif self.method is 'max':
+					self.value = max(self.underlyingValue)
+				elif self.method is 'min':
+					self.value = min(self.underlyingValue)
 			elif self.method is '':
 				self.value = self.dependency
 			elif self.method is not '':
 				raise InvalidSubscriptionError("Dict object doesn't have %s as the method parameter"%self.method)
 
 		elif isinstance(self.underlyingValue, ByteArray):
-			if self.method in ['len', 'count', 'decode', 'endswith', 'find', 'index', 'isalnum', 'isalpha', 'isdigit', 'islower', 'isupper', 'lower', 'replace', 'reverse', 'slice', 'startswith', 'upper']:
+			if self.method in ['len', 'count', 'decode', 'endswith', 'find', 'index', 'isalnum', 'isalpha', 'isdigit', 'islower', 'isupper', 'lower', 'max', 'min', 'replace', 'reverse', 'slice', 'startswith', 'upper']:
 				if self.method is 'len':
 					self.value = len(self.underlyingValue)
 				elif self.method is 'count':
@@ -488,6 +504,10 @@ class Observe:
 					self.value = self.underlyingValue.isupper()
 				elif self.method is 'lower':
 					self.value = self.underlyingValue.lower()
+				elif self.method is 'max':
+					self.value = max(self.underlyingValue)
+				elif self.method is 'min':
+					self.value = min(self.underlyingValue)
 				elif self.method is 'replace':
 					self.value = self.underlyingValue.replace(self.methodParameter[0], self.methodParameter[1])
 				elif self.method is 'reverse':
