@@ -42,7 +42,7 @@ class List(List):
 				print("Object is Observe/Subscribe")
 				#This has id and .value attribute
 				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
-				self.allDependencies.append(element.id)
+				self.allDependencies.append(self.subLevelList[0].id)
 				self.subLevelList.pop(0)
 			
 			else:
@@ -141,7 +141,7 @@ class Dict(Dict):
 				print("Object is Observe/Subscribe")
 				#This has id and .value attribute
 				#This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
-				self.allDependencies.append(element.id)
+				self.allDependencies.append(self.subLevelList[0].id)
 				self.subLevelList.pop(0)
 			
 			else:
@@ -482,16 +482,48 @@ class Observe:
 			if self.method in ['len', 'count', 'decode', 'endswith', 'find', 'index', 'isalnum', 'isalpha', 'isdigit', 'islower', 'isupper', 'lower', 'max', 'min', 'replace', 'reverse', 'slice', 'startswith', 'upper']:
 				if self.method is 'len':
 					self.value = len(self.underlyingValue)
+				
+				
+				
 				elif self.method is 'count':
-					self.value = self.underlyingValue.count(self.methodParameter)
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't count None. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.count(self.methodParameter)	#Count the
+					
+				
+				
+				
 				elif self.method is 'decode':
-					self.value = self.underlyingValue.decode(self.methodParameter)
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't decode without decoding type. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.decode(self.methodParameter)
+					
+				
+				
+				
 				elif self.method is 'endswith':
-					self.value = self.underlyingValue.endswith(self.methodParameter)
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("endswith needs a methodParameter. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.endswith(self.methodParameter)
+				
+				
 				elif self.method is 'find':
-					self.value = self.underlyingValue.find(self.methodParameter)
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't find None. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.find(self.methodParameter)
+				
+				
 				elif self.method is 'index':
-					self.value = self.underlyingValue.index(self.methodParameter)
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't index None. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.index(self.methodParameter)
+				
+				
 				elif self.method is 'isalnum':
 					self.value = self.underlyingValue.isalnum()
 				elif self.method is 'isalpha':
@@ -508,17 +540,34 @@ class Observe:
 					self.value = max(self.underlyingValue)
 				elif self.method is 'min':
 					self.value = min(self.underlyingValue)
+				
+				
+				
 				elif self.method is 'replace':
-					self.value = self.underlyingValue.replace(self.methodParameter[0], self.methodParameter[1])
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't replace None. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.replace(self.methodParameter[0], self.methodParameter[1])
+				
+				
 				elif self.method is 'reverse':
 					self.temp = self.underlyingValue[:]
 					self.temp.reverse()
 					self.value = self.temp[:]
 					del self.temp
+				
 				elif self.method is 'slice':
-					self.value = self.underlyingValue[self.methodParameter]
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't slice None. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue[self.methodParameter]
+				
 				elif self.method is 'startswith':
-					self.value = self.underlyingValue.startswith(self.methodParameter)
+					if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+						raise InvalidSubscriptionError("Can't check. 'methodParameter' was not declared")
+					else:
+						self.value = self.underlyingValue.startswith(self.methodParameter)
+				
 				elif self.method is 'upper':
 					self.value = self.underlyingValue.upper()
 			elif self.method is '':
