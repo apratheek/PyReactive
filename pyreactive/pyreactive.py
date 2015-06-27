@@ -221,13 +221,126 @@ class Observe:
 		The optional methods are:
 
 		1. In case of List
+			
+			For all the examples below, the common List that is used is as follows:
+			
+			>>>a = List([1, 2, 3, 4])	#This is the standard data structure that's assumed to be in memory before every individual operation. All the examples below are independent of each other (for this example)
+			
 			a) count - holds the count of the element passed as the methodParameter
-			b) reverse - holds the reverse of the List. methodParameter is invalid
-			c) lastel - always holds the last element of the List. methodParameter is invalid
-			d) firstel - always holds the first element of the list. methodParameter is invalid
+				
+				>>>a
+				[1, 2, 3, 4]
+				>>>count = Observe(a, method='count', methodParameter=1)
+				>>>count
+				1
+				>>>a.append(1)
+				>>>count
+				2
+			
+			b) reverse - holds the reverse of the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>reverseList = Observe(a, method='reverse')
+				>>>reverseList
+				[4, 3, 2, 1]
+				>>>a.extend([7])
+				>>>reverseList
+				[7, 4, 3, 2, 1]
+				
+			c) lastel - always holds the last element of the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>lastelement = Observe(a, method='lastel')
+				>>>lastelement
+				4
+				>>>a.append()
+				
+			d) firstel - always holds the first element of the list. methodParameter is not applicable
+				
+				>>>a
+				[1, 2, 3, 4]
+				>>>firstelement = Observe(a, method='firstel')
+				>>>firstelement
+				1
+				
 			e) sort - always holds the sorted List. methodParameter could be the sort key
+			
+				>>>a
+				[1, 2, 3, 4,]
+				>>>sortedList = Observe(a, method='sort')
+				>>>sortedList
+				[1, 2, 3, 4]
+				>>>a. extend([-1, -5, 8, 10, -20])
+				>>>sortedList
+				[-20, -5, -1, 1, 2, 3, 4, 8, 10]
+				
 			f) slice - always holds the sliced part of the List. methodParameter is only a slice object, e.g. methodParameter = slice(0, x, y)
-			g) set - always holds the unique elements in the List. methodParameter is invalid
+				
+				>>>a
+				[1, 2, 3, 4]
+				>>>slicedList = Observe(a, method='slice', methodParameter=slice(0, 2))
+				>>>slicedList
+				[1, 2]
+				>>>a.insert(0, -1)	#Inserts -1 at 0th position
+				>>>slicedList
+				[-1, 1]
+			
+			g) set - always holds the unique elements in the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>makeSet = Observe(a, method='set')
+				>>>makeSet
+				{1, 2, 3, 4}
+				>>>a.extend([1, 1, 1, 2, 3, 3, 3, 3, 4, 4, 4])
+				>>>makeSet
+				{1, 2, 3, 4}
+			
+			h) len - always holds the length of the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>listLength = Observe(a, method='len')
+				>>>listLength
+				4
+				>>>a.extend([4, 5, 6, 7])
+				>>>listLength
+				8
+			
+			i) sum - always holds the sum of the elements in the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>listSum = Observe(a, method='sum')
+				>>>listSum
+				10
+				>>>a.extend([5, 6, 7])
+				>>>listSum
+				28
+			
+			j) max - always holds the maximum value of the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>listMax = Observe(a, method='max')
+				>>>listMax
+				4
+				>>>a.extend([5, -1, 5, 7])
+				>>>listMax
+				7
+			
+			k) min - always holds the minimum value of the List. methodParameter is not applicable
+			
+				>>>a
+				[1, 2, 3, 4]
+				>>>listMin = Observe(a, method='min')
+				>>>listMin
+				1
+				>>>a.extend([-1, -2, 5, 9, -5])
+				>>>listMin
+				-5
 
 		2. In case of Set
 			As of this version, there's nothing to Observe. Could be used for future expansion
