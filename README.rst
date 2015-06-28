@@ -76,7 +76,9 @@ Methods on Subscribe
 
 Change log:
 -----------
-**v0.2.1** - Removed debugging prints (25/04/15)
+**v0.2.2** - Added documentation for Observe class and in GitHub. Refer GitHub/Blog for full API (28/06/15)
+
+**v0.2.1** - Removed debugging prints (25/06/15)
 
 **v0.2.0** - Support for deep ByteArrays, Lists, Sets, Dicts, Observe, Subscribe objects. Also, lightweight tests have been written. A whole lot of methods on ByteArray have been introduced. Also, 'max' and 'min' are standard methods over ByteArrays, Lists, Dicts, Sets. Additional bug fixes - previously, 'firstel' wasn't functioning as it was intended to on Lists; now rectified. The updated API description will come up very soon (25/06/15)
 
