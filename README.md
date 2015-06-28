@@ -162,7 +162,7 @@ True
 ```
 As you can see, every change on the list propogates in to a change on the observing object.
 
-An Observe object also takes in an optional method. The legal keywords for the optional method are: count, reverse, sort, firstel, lastel, slice and set.
+An Observe object also takes in an optional method. The legal keywords for the optional method are: count, reverse, sort, firstel, lastel, slice, set, len, sum, max and min.
 
 **a) count** - always holds the number of occurrences of the value passed with the methodParameter option.
 ```python
@@ -383,7 +383,7 @@ Set({1,2,3,4,9})
 ```
 Just like in the previous case, any change to the Set data type percolates to the Observe object.
 
-The Observe object in this case also takes a few optional methods along with a few methodParameters. The legal keywords for the optional method are: len, difference, intersection, symmetric_difference, union, isdisjoint, issubset, issuperset.
+The Observe object in this case also takes a few optional methods along with a few methodParameters. The legal keywords for the optional method are: len, difference, intersection, symmetric_difference, union, isdisjoint, issubset, issuperset, sum, max and min.
 
 **a) len** - holds the length of the Set
 ```python
@@ -483,7 +483,42 @@ False
 True
 ```
 
-Now, it's true that all the above optional methods could've been made as **Subscribe** operators, but since PyReactive doesn't support parantheses yet, there's no way to ensure the precedence of set operators. To avoid ambiguity (since in this case only one operation can be performed at a time), chaining of set operations can be used to solve complex and intricate set equations.
+**i) sum** - holds the sum of all the elements in the Set
+```python
+>>>a = Set({1, 2, 3, 4})
+>>>setSum = Observe(a, method='sum')
+>>>setSum
+10
+>>>a.update({5})
+>>>setSum
+15
+```
+
+**j) max** - holds the element with the maximum value in the Set
+```python
+>>>a = Set({1, 2, 3, 4})
+>>>setMax = Observe(a, method='max')
+>>>setMax
+4
+>>>a.update({5})
+>>>setMax
+5
+```
+
+**k) min** - holds the element with the minimum value in the Set
+```python
+>>>a = Set({1, 2, 3, 4})
+>>>setMin = Observe(a, method='min')
+>>>setMin
+1
+>>>a.update({-1, 5})
+>>>setMin
+-1
+```
+
+
+
+Now, it's true that many of the above optional methods could've been made as **Subscribe** operators, but since PyReactive doesn't support parantheses yet, there's no way to ensure the precedence of set operators. To avoid ambiguity (since in this case only one operation can be performed at a time), chaining of set operations can be used to solve complex and intricate set equations.
 
 
 **Use Case: ByteArray**
