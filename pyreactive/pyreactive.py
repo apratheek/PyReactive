@@ -565,7 +565,7 @@ class Observe:
                 >>>decoded
                 Hey There! How are you?
 
-            d) endswith - holds a boolean value. Becomes True if the ByteArray ends with the parameter passed in methodParameter. methodParameter is compulsory.
+            d) endswith - holds a boolean value. Becomes True if the ByteArray ends with the parameter passed in methodParameter. methodParameter is compulsory
 
                 >>>a = ByteArray("Hi There", "UTF-8")
                 >>>a

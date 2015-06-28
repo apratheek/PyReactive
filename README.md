@@ -531,7 +531,7 @@ bytearray(b'hello')
 >>>b
 bytearray(b'xello')
 ```
-Again, the change percolates to a change in the Observe object. The optional methods are:
+Again, the change percolates to cause a change in the Observe object. The optional methods are:
 
 **a) len** - Holds the length of the ByteArray
 ```python
@@ -543,6 +543,168 @@ Again, the change percolates to a change in the Observe object. The optional met
 4
 >>>a
 bytearray(b'hell')
+```
+
+**b) count** - counts the number of occurrences of the value passed as the methodParameter in the ByteArray
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>count = Observe(a, method='count', methodParameter=b'e')
+>>>count
+2
+>>>a.extend(b'! Evening!')
+>>>count
+4
+```
+
+**c) decode** - holds the decoded ByteArray according to the decoding passed as the methodParameter. There is no default decoding. methodParameter is necessary
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>decoded = Observe(a, method='decode', methodParameter='UTF-8')
+>>>decoded
+Hi There
+>>>a.extend(b"! How are you?")
+>>>decoded
+Hey There! How are you?
+```
+
+**d) endswith** - holds a boolean value. Becomes True if the ByteArray ends with the parameter passed in methodParameter. methodParameter is compulsory
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>endswith = Observe(a, method='endswith', methodParameter=b'e')
+>>>endswith
+True
+>>>a.extend(b'!')
+>>>endswith
+False
+```
+
+**e) find** - holds the first location of the value passed in methodParameter. Holds -1 if value is not found. methodParameter is the search parameter and is compulsory. Currently, only the first location is supported.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>find = Observe(a, method='find', methodParameter=b'k')
+>>>find
+-1
+>>>a.extend(b' king')
+>>>find
+9
+```
+
+**f) index** - holds the first location of the value passed in methodParameter. Raises ValueError if not found. methodParameter is the search parameter and is compulsory. Currently, only the first location is supported.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>index = Observe(a, method='index', methodParameter=b'e')
+>>>index
+5
+>>>a.replace(b'H', b'e')
+>>>index
+0
+```
+
+**g) isalnum** - Returns **True** if the ByteArray is **alnum**. **False** otherwise.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>isalnum = Observe(a, method='isalnum')
+>>>isalnum
+False
+```
+
+**h) isalpha** - Returns **True** if the ByteArray is **alpha**. **False** otherwise.
+```python
+>>>a = ByteArray("Hi", "UTF-8")
+>>>isalpha = Observe(a, method='isalpha')
+>>>isalpha
+True
+```
+
+**i) isdigit** - Returns **True** if the ByteArray is **digit**. **False** otherwise.
+```python
+>>>a = ByteArray("12345", "UTF-8")
+>>>>isdigit = Observe(a, method='isdigit')
+>>>isdigit
+True
+```
+
+**j) islower** - Returns **True** if the ByteArray is **lower**. **False** otherwise.
+```python
+>>>a = ByteArray("hi there", "UTF-8")
+>>>islower = Observe(a, method='islower')
+>>>islower
+True
+```
+
+**k) isupper** - Returns **True** if the ByteArray is **upper**. **False** otherwise.
+```python
+>>>a = ByteArray("HI THERE", "UTF-8")
+>>>isupper = Observe(a, method='isupper')
+>>>isupper
+True
+```
+
+**l) lower** - This holds the ByteArray in its lower case
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>lower = Observe(a, method='lower')
+>>>lower
+bytearray(b'hi there')
+```
+
+**m) upper** - This holds the ByteArray in its upper case
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>upper = Observe(a, method='upper')
+>>>upper
+bytearray(b'HI THERE)
+```
+
+**n) replace** - This holds the ByteArray with the replaced byte passed in the methodParameter. methodParameter is a tuple with the first element being the byte to replace and the second element being the byte that needs to replace.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>replace = Observe(a, method='replace', methodParameter=(b'e', b'l'))
+>>>replace
+bytearray(b'Hi Thlrl)
+```
+
+**o) reverse** - This holds the reversed ByteArray
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>reverse = Observe(a, method='reverse')
+>>>reverse
+bytearray(b'erehT iH')
+```
+
+**p) slice** - This holds the sliced ByteArray. methodParameter is a slice object
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>sliced = Observe(a, method='slice'. methodParameter=slice(-3, -1))
+>>>sliced
+bytearray(b'er')
+>>>a.extend(b' Again')
+>>>sliced
+bytearray(b'ai')
+```
+
+**q) startswith** - Returns **True** if the ByteArray starts with the value passed in as the methodParameter. **False** otherwise.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>startswith = Observe(a, method='startswith', methodParameter=b'H')
+>>>startswith
+True
+```
+
+**r) max** - This holds the maximum value in the ByteArray. Holds an integer.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>maxBA = Observe(a, method='max')
+>>>maxBA
+114
+```
+
+**s) min** - This holds the minimum value in the ByteArray. Holds an integer.
+```python
+>>>a = ByteArray("Hi There", "UTF-8")
+>>>minBA = Observe(a, method='min')
+>>>minBA
+32  #The UTF-8 code for blank-space in integer
 ```
 
 #####Observe class methods
