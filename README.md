@@ -1,5 +1,5 @@
 # PyReactive
-Reactive Programming Module for Python 2/3. 
+Reactive Programming Module for Python 2/3.
 Complete writeup at [http://pratheekadidela.in/](http://pratheekadidela.in/2015/04/06/pyreactive-a-silly-reactive-module-for-python/)
 
 ####What is Reactive Programing?
@@ -23,7 +23,7 @@ Look at the following code.
 ```
 There's nothing out of the ordinary here. This is regulation code. **sum** will always remain 13 no matter what **a** and **b** are changed to, because at the time of declaration, 'sum' had evaluated to 13, hence, it will stay 13.
 
-But what if we wanted **sum** to change according to the values of **a** and **b**? Or, to put it a little more formally, what if we wanted **sum** to **SUBSCRIBE** to the two variables **a** and **b**? 
+But what if we wanted **sum** to change according to the values of **a** and **b**? Or, to put it a little more formally, what if we wanted **sum** to **SUBSCRIBE** to the two variables **a** and **b**?
 
 --> ENTER REACTIVE PROGRAMMING
 
@@ -44,7 +44,7 @@ In this paradigm, variables are OBSERVED and/or SUBSCRIBED to. What I mean by **
 The above example shows how reactive programming works. It observes variables, and whenever there's a subscription, it automatically computes the operation everytime there's a change in the underlying value of the variable. This example shows how beautiful code can get by utilizing this wonderful paradigm. No more redundant declarations. Declare once, use forever. Okay, I might be getting carried away now.
 
 ####The nuts and bolts (and other definitions)
-The following section describes the various definitions of terms used in the module and the corresponding APIs. For all the code to work, install it first using 
+The following section describes the various definitions of terms used in the module and the corresponding APIs. For all the code to work, install it first using
 
 CAVEAT: I'd strongly recommend using virtualenv. If you haven't yet installed it, install it as follows:
 ```python
@@ -273,6 +273,39 @@ An example that combines sort and firstel to always holds the least element of a
 4
 ```
 
+**i) sum** - holds the sum of all elements of the List
+```python
+>>>a = List([1, 2, 3, 4])
+>>>listSum = Observe(a, method='sum')
+>>>listSum
+10
+>>>a.extend([5, 6, 7])
+>>>listSum
+28
+```
+
+**j) max** - holds the maximum value of the List
+```python
+>>>a = List([1, 2, 3, 4])
+>>>listMax = Observe(a, method='max')
+>>>listMax
+4
+>>>a.extend([5, -1, 5, 7])
+>>>listMax
+7
+```
+
+**k) min** - holds the minimum value of the List
+```python
+>>>a = List([1, 2, 3, 4])
+>>>listMin = Observe(a, method='min')
+>>>listMin
+1
+>>>a.extend([-1, -2, 5, 9, -5])
+>>>listMin
+-5
+```
+
 **Use Case: Dict**
 ```python
 >>>a = Dict({1: [12,3,65], 2: [43,23,1]})
@@ -316,7 +349,7 @@ Set({1,2,3,4,9})
 >>>a
 Set({1,2,3,4,9})
 ```
-Just like in the previous case, any change to the Set data type percolates to the Observe object. 
+Just like in the previous case, any change to the Set data type percolates to the Observe object.
 
 The Observe object in this case also takes a few optional methods along with a few methodParameters. The legal keywords for the optional method are: len, difference, intersection, symmetric_difference, union, isdisjoint, issubset, issuperset.
 
@@ -464,8 +497,8 @@ Each Observe object has a few fancy methods too.
 **b) notify** - This method needs to be overridden if you want something exotic to happen whenever the Observe object changes. Every time that the value of the object changes, the **notify** method is called. An e.g.: Let's say that we want to push the updated value via a WebSocket, all that we have to do is override the **notify** method to push the value via the WebSocket. It takes fewer lines than this description. Seriously.
 ```python
 class ObserveSocket(Observe):
-	def notify(self):
-    	ws.send(self)		#Where ws is the WebSocket object
+    def notify(self):
+        ws.send(self)		#Where ws is the WebSocket object
 ```
 ```python
 >>>a = List([1,2])
@@ -509,17 +542,17 @@ If **result** is to subscribe to **a + b * 5 - c ** 0.87 + d - e/6**, the same A
 >>>result = Subscribe(var=(a,b,5,c,0.87,d,e,6), op=('+','*','-','**','+','-','/'))
 ```
 
-As of this moment, the **supported operators** are: 
-> 1. **+** (Addition), 
-2. **-** (Subtraction), 
-3. **/** (Division), 
+As of this moment, the **supported operators** are:
+> 1. **+** (Addition),
+2. **-** (Subtraction),
+3. **/** (Division),
 4. __\*__ (Multiplication),
 5. __\*\*__ (Exponent),
 6. __%__ (Modulus),
 7. __//__ (Floor Division),
-8. **<<** (Binary Left Shift), 
+8. **<<** (Binary Left Shift),
 9. **>>** (Binary Right Shift),
-10. **&** (Binary/Bitwise AND), 
+10. **&** (Binary/Bitwise AND),
 11. **|** (Binary/Bitwise OR),
 12. **^** (Binary/Bitwise XOR),
 13. **'and'** (Logical AND),
@@ -562,9 +595,9 @@ Each Subscribe object has a few fancy methods too.
 >>>a = Observe(10)
 >>>b = Observe(11)
 >>>class SubNotify(Subscribe):
-	def notify(self):
-    	if self.value > 23:
-        	print("Value hit the upper limit!")
+    def notify(self):
+        if self.value > 23:
+            print("Value hit the upper limit!")
 >>>c = SubNotify(var=(a,b), op=('+',))
 >>>a.changeTo(11)
 >>>b.changeTo(12)
