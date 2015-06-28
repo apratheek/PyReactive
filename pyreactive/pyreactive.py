@@ -457,12 +457,71 @@ class Observe:
                 >>>setMin
                 -1
 
-
         3. In case of Dict
 
-            'key', 'len', 'sum', 'max', 'min'
+            For all the examples below, the common Dict that is used is as follows:
+
+            >>>a = Dict({1: 2, 2: List([3, 4, 5])})
 
             a) key - holds the current value of the key. methodParameter is one of the keys of the Dict
+
+                >>>a = Dict({1: 2, 2: List([3, 4, 5])})
+                >>>a
+                {1: 2, 2: [3, 4, 5]}
+                >>>key = Observe(a, method='key', methodParameter=2)
+                >>>key
+                [3, 4, 5]
+                >>>a[2].append(9)
+                >>>key
+                [3, 4, 5, 9]
+
+            b) len - holds the current length of the Dict. methodParameter is not applicable
+
+                >>>a = Dict({1: 2, 2: List([3, 4, 5])})
+                >>>a
+                {1: 2, 2: [3, 4, 5]}
+                >>>dictLength = Observe(a, method='len')
+                >>>dictLength
+                2
+                >>>a[3] = {4, 5, 6, 7}
+                >>>dictLength
+                3
+
+            c) sum - holds the sum of all the keys in the Dict. methodParameter is not applicable
+
+                >>>a = Dict({1: 2, 2: List([3, 4, 5])})
+                >>>a
+                {1: 2, 2: [3, 4, 5]}
+                >>>dictSum = Observe(a, method='sum')
+                >>>dictSum
+                3
+                >>>a[4] = {4, 5, 6, 7}
+                >>>dictSum
+                7   # 1 + 2 + 4
+
+            d) max - holds the max of all the keys in the Dict. methodParameter is not applicable
+
+                >>>a = Dict({1: 2, 2: List([3, 4, 5])})
+                >>>a
+                {1: 2, 2: [3, 4, 5]}
+                >>>maxDict = Observe(a, method='max')
+                >>>maxDict
+                2
+                >>>a[3] = [4, 5, 6, 7]
+                >>>maxDict
+                3
+
+            e) min - holds the min of all the keys in the Dict. methodParameter is not applicable
+
+                >>>a = Dict({1: 2, 2: List([3, 4, 5])})
+                >>>a
+                {1: 2, 2: [3, 4, 5]}
+                >>>minDict = Observe(a, method='min')
+                >>>minDict
+                1
+                >>>a[-1] = {1, 2}
+                >>>minDict
+                -1
 
         4. In case of ByteArray
 
