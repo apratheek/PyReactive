@@ -336,6 +336,38 @@ A change in the underlying Dict triggers a change in the Observe object. The opt
 >>>length
 3
 ```
+**c) sum** - holds the sum of all the keys in the Dict
+```python
+>>>a = Dict({1: 2, 2: List([3, 4, 5])})
+>>>dictSum = Observe(a, method='sum')
+>>>dictSum
+3
+>>>a[4] = {4, 5, 6, 7}
+>>>dictSum
+7   # 1 + 2 + 4
+```
+
+**d) max** - holds the maximum of all the keys in the Dict
+```python
+>>>a = Dict({1: 2, 2: List([3, 4, 5])})
+>>>maxDict = Observe(a, method='max')
+>>>maxDict
+2
+>>>a[3] = [4, 5, 6, 7]
+>>>maxDict
+3
+```
+
+**e) min** - holds the minimum of all the keys in the Dict
+```python
+>>>a = Dict({1: 2, 2: List([3, 4, 5])})
+>>>minDict = Observe(a, method='min')
+>>>minDict
+1
+>>>a[-1] = {1, 2}
+>>>minDict
+-1
+```
 
 **Use Case: Set**
 ```python
