@@ -1244,7 +1244,7 @@ class Subscribe:
                 self.tempLenDiff = len(self.operatorsList) - len(self.rformat)
                 self.rformat.extend([None]*self.tempLenDiff)
                 del self.tempLenDiff
-                print("self.rformat in try at init is %s"%self.rformat)
+                #print("self.rformat in try at init is %s"%self.rformat)
         except:
             self.rformat = [None]*len(self.operatorsList)
 
