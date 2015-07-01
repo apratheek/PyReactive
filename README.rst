@@ -76,6 +76,8 @@ Methods on Subscribe
 
 Change log:
 -----------
+**v0.2.3** - Notify method is now silent in case there's no change in the value of the Observe object. It is now called only when there's an actual change to the object. Also, there's a change in the API in case of Observe objects of Lists/ByteArrays in the 'slice' method. Does not accept slice object now. Rather, accepts a tuple (start, end, step), and this tuple could also consist of other Observe objects (01/07/15)
+
 **v0.2.2** - Added documentation for Observe class and in GitHub. Refer GitHub/Blog for full API (28/06/15)
 
 **v0.2.1** - Removed debugging prints (25/06/15)
@@ -84,7 +86,7 @@ Change log:
 
 **v0.1.6** - Bug fixes in method = 'lastel' and 'firstel' in Observe class over List. Originally couldn't observe on empty Lists. Now fixed (23/04/15)
 
-**v0.1.5** - Added 'sum' on Observe over List, Dict, and Set. This always holds the sum of the underlying data type (19/04/15) 
+**v0.1.5** - Added 'sum' on Observe over List, Dict, and Set. This always holds the sum of the underlying data type (19/04/15)
 
 **v0.1.4** - Changed notify() call in Observe class to an appropriate location (15/04/15)
 

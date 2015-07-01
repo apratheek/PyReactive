@@ -750,9 +750,9 @@ class Observe:
         idVariableDict[self.id] = self
         self.dependency = dependency 					#Setting up the dependency of the Observable to the passed variable
         self.underlyingValue = dependency
-		
+
         self.initialCalc = True			#Boolean flag that denotes if this is the first time that the value is being calculated
-		
+
         #if isinstance(self.underlyingValue, (Observe, Subscribe)):
         #	self.underlyingValue = self.dependency.value
 
@@ -891,13 +891,13 @@ class Observe:
 
                 elif self.method is 'slice':
                     ##print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
-                    
+
                     if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
                         raise InvalidSubscriptionError("Can't slice None. 'methodParameter' was not declared")
-                    
+
                     if isinstance(self.methodParameter, slice):
                         raise InvalidSubscriptionError("Using slice is deprecated. The new API takes methodParameter as a tuple")
-                    
+
                     try:
                         startSlice = self.methodParameter[0]
                         stopSlice = self.methodParameter[1]
@@ -907,22 +907,22 @@ class Observe:
                         stepSlice = self.methodParameter[2]
                     except:
                         stepSlice = None
-                    
+
                     #Check if startSlice/stopSlice/stepSlice are Observe/Subscribe
                     if isinstance(startSlice, (Observe, Subscribe)):
                         if self.id not in dependencyGraph[startSlice.id]:
-                            dependencyGraph[startSlice.id].append(self.id)    
-                        
-                        
+                            dependencyGraph[startSlice.id].append(self.id)
+
+
                         startSlice = startSlice.value
-                        
+
                     if isinstance(stopSlice, (Observe, Subscribe)):
                         if self.id not in dependencyGraph[stopSlice.id]:
                             dependencyGraph[stopSlice.id].append(self.id)
                         stopSlice = stopSlice.value
                     if isinstance(stepSlice, (Observe, Subscribe, ByteArray, List, Dict, Set)):
                         raise InvalidSubscriptionError("Step in a slice needs to be an integer. You gave %s"%stepSlice)
-                    
+
                     self.value = self.underlyingValue[startSlice : stopSlice : stepSlice]
 
                 elif self.method is 'sum':
@@ -1100,10 +1100,10 @@ class Observe:
                 elif self.method is 'slice':
                     if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
                         raise InvalidSubscriptionError("Can't slice None. 'methodParameter' was not declared")
-                    
+
                     if isinstance(self.methodParameter, slice):
                         raise InvalidSubscriptionError("Using slice is deprecated. The new API takes methodParameter as a tuple")
-                    
+
                     try:
                         startSlice = self.methodParameter[0]
                         stopSlice = self.methodParameter[1]
@@ -1113,22 +1113,22 @@ class Observe:
                         stepSlice = self.methodParameter[2]
                     except:
                         stepSlice = None
-                    
+
                     #Check if startSlice/stopSlice/stepSlice are Observe/Subscribe
                     if isinstance(startSlice, (Observe, Subscribe)):
                         if self.id not in dependencyGraph[startSlice.id]:
-                            dependencyGraph[startSlice.id].append(self.id)    
-                        
-                        
+                            dependencyGraph[startSlice.id].append(self.id)
+
+
                         startSlice = startSlice.value
-                        
+
                     if isinstance(stopSlice, (Observe, Subscribe)):
                         if self.id not in dependencyGraph[stopSlice.id]:
                             dependencyGraph[stopSlice.id].append(self.id)
                         stopSlice = stopSlice.value
                     if isinstance(stepSlice, (Observe, Subscribe, ByteArray, List, Dict, Set)):
                         raise InvalidSubscriptionError("Step in a slice needs to be an integer. You gave %s"%stepSlice)
-                    
+
                     self.value = self.underlyingValue[startSlice : stopSlice : stepSlice]
 
                 elif self.method is 'startswith':
@@ -1159,22 +1159,22 @@ class Observe:
             idVariableDict[element].update()
 
         self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
-        
+
         if self.initialCalc:
-			#This is the first time that it has been calculated. Hence, call notify.
+            #This is the first time that it has been calculated. Hence, call notify.
             self.oldValue = self.value		#Assign the calculated value to self.oldValue. This variable keeps track of the changes in the value.
             self.initialCalc = False	#Set initialCalc to False since this isn't needed after init
             self.notify()
-		
+
         else:	#Case after initialCalc
             if self.oldValue == self.value:
-				#Do not notify
+                #Do not notify
                 pass
             else:
-				#Call the notify method and assign the new value to oldValue
+                #Call the notify method and assign the new value to oldValue
                 self.oldValue = self.value
                 self.notify()
-		#self.notify()
+        #self.notify()
 
     def notify(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
         """This method is supposed to be overridden to perform anything of value whenever a change occurs"""
@@ -1219,8 +1219,8 @@ class Subscribe:
             self.operatorsList = list(args['op'])
         except:
             raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
-        
-        
+
+
         for var in self.variablesSubscribedTo:
             try:
                 if var.id not in idVariableDict:		#if var.id is available but it is not in the dependencyGraph..this is the case when a foreign object might have a parameter called 'id'
@@ -1235,8 +1235,8 @@ class Subscribe:
             raise InvalidSubscriptionError("The number of operators can only be 1 less than the number of operands. Subscription aborted.")
 
             #The scrubbing/sanitization of variables passed is now complete.
-        
-        
+
+
         try:
             self.rformat = list(args['rformat'])
             if len(self.rformat) < len(self.operatorsList):
@@ -1247,7 +1247,7 @@ class Subscribe:
                 print("self.rformat in try at init is %s"%self.rformat)
         except:
             self.rformat = [None]*len(self.operatorsList)
-        
+
         #At this point, self.rformat becomes available and is of the same length as self.operatorsList
         #print("self.rformat is %s"%self.rformat)
 
@@ -1260,9 +1260,30 @@ class Subscribe:
             dependencyGraph[var.id].append(self.id)			#Declare the dependency of the Subsciption object on each of the variablesSubscribedTo.
 
         self.update()		#Call the update method to calculate the value
-    
+
     #def __index__(self):
     #    return self.value
+
+
+    """
+    or
+
+    **API:** **SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....), rformat=('fabs', 'ceil', 'floor'))**
+
+    A Subscribe object also takes an optional **rformat** which accepts either **ceil**, **floor**, **fabs**. These are similar to the methods available in the standard **math** module. **ceil** would compute the ceil value of the two operands, **fabs** would compute the absolute value of the two operands, and **floor** would compute the floor value of the two operands. **rformat** is a tuple with its order similar to that of **op**. If no return format needs to be specified, it also accepts **None** or **''**.
+
+    If the equation is 2 + floor(5/4) x ceil(20/3) + abs(-4/2), then the Subscribe object is:
+```python
+>>>op1 = Observe(2)
+>>>op2 = Observe(5)
+>>>op3 = Observe(4)
+>>>op4 = Observe(20)
+>>>op5 = Observe(3)
+>>>op6 = Observe(-4)
+>>>op7 = Observe(2)
+>>>eqn = Subscribe(var=(op1, op2, op3, op4, op5, op6, op7), op=('+', '/','*','/', '+', '/'), rformat=(None, 'floor', None, 'ceil', None, 'fabs'))
+```
+    """
 
     def update(self):
         operatorsSet = createSetInPrecedence(self.operatorsList)
@@ -1410,13 +1431,13 @@ def evaluateEquation(alteredList, operator, OperatorsList, rFormatList):
             secondOperand = alteredList[locOperator + 1].value			#Pick the second operand
         except:
             secondOperand = alteredList[locOperator + 1]
-        
+
         localRFormat = rFormatList[locOperator]
         #print("localRFormat in evaluateEquation is %s"%localRFormat)
         resultant = evaluateExpression(firstOperand, secondOperand, operator, localRFormat)		#Send the expression to another function, and the result will be replaced in the original variablesToObserve, along with the removal of the operator at that location from OperatorsList
-        
+
         #print("resultant in evaluateEquation is %s"%resultant)
-        
+
         alteredList.pop(locOperator)		#Pop the two operands, and replace them with the resultant
         alteredList.pop(locOperator)
         rFormatList.pop(locOperator)
@@ -1470,7 +1491,7 @@ def evaluateExpression(firstOperand, secondOperand, operator, localRFormat):
     finally:
 
         ###print("Result in evaluateExpression is %s"%result)
-        
+
         #Formats are ceil, fabs, floor
         #print("localRFormat in evaluateExpression is %s"%localRFormat)
         if localRFormat is None or localRFormat == '':

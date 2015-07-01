@@ -878,10 +878,63 @@ a)
 >>>b
 {1: [1,3,2,9]}
 >>>c
-{1: [1,3,2,9}
+{1: [1,3,2,9]}
 ```
-Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding onchange method of c wouldn't work in this case. Will issue an update very soon.
+Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding notify method of c wouldn't work in this case. Will issue an update very soon.
 
+######Major Changes
+
+- As of v0.2.3, the notify method has turned silent in case its value does not change. So, it only notifies when there's a tangible change in the value. The below example should help..
+
+```python
+>>>l = List([1, 2, 3])
+>>>class Trial(Observe):
+...     def notify(self):
+...         print("Updated %s"%self.value)
+>>>a = Trial(l, method='max')
+Updated 3
+>>>b = Trial(l, method='min')
+Updated 1
+>>>a
+3
+>>>b
+1
+>>>l.append(-1)
+Updated -1
+>>>b
+-1
+>>>l.append(4)
+Updated 4
+>>>a
+4
+>>>l.append(2.5)
+>>>#No update to either a or b
+```
+In the above example, the notify method on **a** is called only when the **max** value in the List changes. Similarly, the notify method on **b** is called only when the **min** value in the List changes. In versions prior to 0.2.3, the notify method was called irrespective of whether its value changed. This has been altered so that no unnecessary function calls are made.
+
+######Change log
+
+**v0.2.3** - Notify method is now silent in case there's no change in the value of the Observe object. It is now called only when there's an actual change to the object. Also, there's a change in the API in case of Observe objects of Lists/ByteArrays in the 'slice' method. Does not accept slice object now. Rather, accepts a tuple (start, end, step), and this tuple could also consist of other Observe objects (01/07/15)
+
+**v0.2.2** - Added documentation for Observe class and in GitHub. Refer GitHub/Blog for full API (28/06/15)
+
+**v0.2.1** - Removed debugging prints (25/06/15)
+
+**v0.2.0** - Support for deep ByteArrays, Lists, Sets, Dicts, Observe, Subscribe objects. Also, lightweight tests have been written. A whole lot of methods on ByteArray have been introduced. Also, 'max' and 'min' are standard methods over ByteArrays, Lists, Dicts, Sets. Additional bug fixes - previously, 'firstel' wasn't functioning as it was intended to on Lists; now rectified. The updated API description will come up very soon (25/06/15)
+
+**v0.1.6** - Bug fixes in method = 'lastel' and 'firstel' in Observe class over List. Originally couldn't observe on empty Lists. Now fixed (23/04/15)
+
+**v0.1.5** - Added 'sum' on Observe over List, Dict, and Set. This always holds the sum of the underlying data type (19/04/15)
+
+**v0.1.4** - Changed notify() call in Observe class to an appropriate location (15/04/15)
+
+**v0.1.3** - Updated pypi README in .rst (11/04/15)
+
+**v0.1.2** - Published README not parsed on pypi (10/04/15)
+
+**v0.1.1** - Published README in markdown (10/04/15)
+
+**v0.1.0** - First upload (10/04/15)
 
 
 #####Further work:
