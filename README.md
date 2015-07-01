@@ -189,6 +189,7 @@ An Observe object also takes in an optional method. The legal keywords for the o
 >>>b	#holds the reverse of the list
 [9,2,3,1]
 ```
+
 **c) sort** - holds a copy of the sorted List
 ```python
 >>>a = List([1,3,2])
@@ -228,6 +229,7 @@ An example that combines sort and firstel to always holds the least element of a
 >>>b
 [-9,1,2,3]
 ```
+
 **e) lastel** - always holds the last element of the List
 ```python
 >>>a = List([1,3,2])
@@ -240,16 +242,29 @@ An example that combines sort and firstel to always holds the least element of a
 >>>a
 [1,3,2,9]
 ```
-**f) slice** - holds the sliced List, with the methodParameter being a slice object
+
+**f) slice** - always holds the sliced part of the List. methodParameter is a tuple and can compose of PyReactive Observe Objects, e.g. methodParameter = (0, 4, 1), or (a, b), where a and b are PyReactive Observe objects. It also takes an optional step as the third argument. This needs to be an integer.
 ```python
->>>a = List([1,3,2,4,1])
->>>b = Observe(a, method='slice', methodParameter=slice(0,3))
->>>b
-[1,3,2]
->>>a.insert(0,-4)
->>>b
-[-4,1,3]
+>>>a
+[1, 2, 3, 4]
+>>>slicedList = Observe(a, method='slice', methodParameter=(0, 2))
+>>>slicedList
+[1, 2]
+>>>a.insert(0, -1)	#Inserts -1 at 0th position
+>>>slicedList
+[-1, 1]
+>>>a
+[-1, 1, 2, 3, 4]
+>>>b = Observe(0)
+>>>c = Observe(2)
+>>>d = Observe(a, method='slice', methodParameter=(b, c))
+>>>d
+[-1, 1]
+>>>c.changeTo(4)
+>>>d
+[-1, 1, 2, 3]
 ```
+
 **g) set** - holds only the unique elements of the List
 ```python
 >>>a = List([1,3,2,2,4,1,5,2])
@@ -326,6 +341,7 @@ A change in the underlying Dict triggers a change in the Observe object. The opt
 >>>b
 [5,2]
 ```
+
 **b) len** - holds the length of the Dict
 ```python
 >>>a = Dict({1:2, 2:3})
@@ -336,6 +352,7 @@ A change in the underlying Dict triggers a change in the Observe object. The opt
 >>>length
 3
 ```
+
 **c) sum** - holds the sum of all the keys in the Dict
 ```python
 >>>a = Dict({1: 2, 2: List([3, 4, 5])})
@@ -672,15 +689,26 @@ bytearray(b'Hi Thlrl)
 bytearray(b'erehT iH')
 ```
 
-**p) slice** - This holds the sliced ByteArray. methodParameter is a slice object
+**p) slice** - This holds the sliced ByteArray. methodParameter is a tuple and can compose of PyReactive Observe Objects, e.g. methodParameter = (0, 4, 1), or (a, b), where a and b are PyReactive Observe objects. It also takes an optional step as the third argument. This needs to be an integer.
 ```python
 >>>a = ByteArray("Hi There", "UTF-8")
->>>sliced = Observe(a, method='slice'. methodParameter=slice(-3, -1))
+>>>a
+bytearray(b'Hi There')
+>>>sliced = Observe(a, method='slice'. methodParameter=(-3, -1))
 >>>sliced
 bytearray(b'er')
 >>>a.extend(b' Again')
 >>>sliced
 bytearray(b'ai')
+>>>a
+bytearray(b'Hi There Again')
+>>>b = Observe(2)
+>>>c = Observe(5)
+>>>sliced = Observe(a, method='slice', methodParameter=(b, c))
+>>>sliced
+bytearray(b' Th')
+>>>c.changeTo(7)
+bytearray(b' Ther')
 ```
 
 **q) startswith** - Returns **True** if the ByteArray starts with the value passed in as the methodParameter. **False** otherwise.

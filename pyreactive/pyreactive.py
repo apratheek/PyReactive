@@ -1,4 +1,5 @@
 import uuid
+import math
 from .mutables import *
 
 dependencyGraph = {}						#Define a central dependency graph that holds all relations between mutables
@@ -276,16 +277,26 @@ class Observe:
                 >>>sortedList
                 [-20, -5, -1, 1, 2, 3, 4, 8, 10]
 
-            f) slice - always holds the sliced part of the List. methodParameter is only a slice object, e.g. methodParameter = slice(0, x, y)
+            f) slice - always holds the sliced part of the List. methodParameter is a tuple and can compose of PyReactive Observe Objects, e.g. methodParameter = (0, 4, 1), or (a, b), where a and b are PyReactive Observe objects. It also takes in an optional step as the third argument. This needs to be an integer.
 
                 >>>a
                 [1, 2, 3, 4]
-                >>>slicedList = Observe(a, method='slice', methodParameter=slice(0, 2))
+                >>>slicedList = Observe(a, method='slice', methodParameter=(0, 2))
                 >>>slicedList
                 [1, 2]
                 >>>a.insert(0, -1)	#Inserts -1 at 0th position
                 >>>slicedList
                 [-1, 1]
+                >>>a
+                [-1, 1, 2, 3, 4]
+                >>>b = Observe(0)
+                >>>c = Observe(2)
+                >>>d = Observe(a, method='slice', methodParameter=(b, c))
+                >>>d
+                [-1, 1]
+                >>>c.changeTo(4)
+                >>>d
+                [-1, 1, 2, 3]
 
             g) set - always holds the unique elements in the List. methodParameter is not applicable
 
@@ -682,17 +693,26 @@ class Observe:
                 >>>reverse
                 bytearray(b'erehT iH')
 
-            p) slice - This holds the sliced ByteArray. methodParameter is a slice object.
+            p) slice - This holds the sliced ByteArray. methodParameter is a tuple and can compose of PyReactive Observe Objects, e.g. methodParameter = (0, 4, 1), or (a, b), where a and b are PyReactive Observe objects. It also takes in an optional step as the third argument. This needs to be an integer.
 
                 >>>a = ByteArray("Hi There", "UTF-8")
                 >>>a
                 bytearray(b'Hi There')
-                >>>sliced = Observe(a, method='slice'. methodParameter=slice(-3, -1))
+                >>>sliced = Observe(a, method='slice'. methodParameter=(-3, -1))
                 >>>sliced
                 bytearray(b'er')
                 >>>a.extend(b' Again')
                 >>>sliced
                 bytearray(b'ai')
+                >>>a
+                bytearray(b'Hi There Again')
+                >>>b = Observe(2)
+                >>>c = Observe(5)
+                >>>sliced = Observe(a, method='slice', methodParameter=(b, c))
+                >>>sliced
+                bytearray(b' Th')
+                >>>c.changeTo(7)
+                bytearray(b' Ther')
 
             q) startswith - This holds a boolean value. Is True if the ByteArray starts with the value passed in as the methodParameter. Otherwise, is False. methodParameter is compulsory
 
@@ -777,7 +797,8 @@ class Observe:
             #	pass
         ############################################################
 
-
+    #def __index__(self):
+    #    return self.value
 
 
 
@@ -870,7 +891,39 @@ class Observe:
 
                 elif self.method is 'slice':
                     ##print("self.underlyingValue is %s"%self.underlyingValue)		#Case when self.method is sliced
-                    self.value = self.underlyingValue[self.methodParameter]
+                    
+                    if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
+                        raise InvalidSubscriptionError("Can't slice None. 'methodParameter' was not declared")
+                    
+                    if isinstance(self.methodParameter, slice):
+                        raise InvalidSubscriptionError("Using slice is deprecated. The new API takes methodParameter as a tuple")
+                    
+                    try:
+                        startSlice = self.methodParameter[0]
+                        stopSlice = self.methodParameter[1]
+                    except:
+                        raise InvalidSubscriptionError("Need methodParameter as a tuple. The first element should be the start of the slice and the second element should be the stop of the slice. An optional step is the third element of the tuple")
+                    try:
+                        stepSlice = self.methodParameter[2]
+                    except:
+                        stepSlice = None
+                    
+                    #Check if startSlice/stopSlice/stepSlice are Observe/Subscribe
+                    if isinstance(startSlice, (Observe, Subscribe)):
+                        if self.id not in dependencyGraph[startSlice.id]:
+                            dependencyGraph[startSlice.id].append(self.id)    
+                        
+                        
+                        startSlice = startSlice.value
+                        
+                    if isinstance(stopSlice, (Observe, Subscribe)):
+                        if self.id not in dependencyGraph[stopSlice.id]:
+                            dependencyGraph[stopSlice.id].append(self.id)
+                        stopSlice = stopSlice.value
+                    if isinstance(stepSlice, (Observe, Subscribe, ByteArray, List, Dict, Set)):
+                        raise InvalidSubscriptionError("Step in a slice needs to be an integer. You gave %s"%stepSlice)
+                    
+                    self.value = self.underlyingValue[startSlice : stopSlice : stepSlice]
 
                 elif self.method is 'sum':
                     self.value = sum(self.underlyingValue)
@@ -1047,8 +1100,36 @@ class Observe:
                 elif self.method is 'slice':
                     if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
                         raise InvalidSubscriptionError("Can't slice None. 'methodParameter' was not declared")
-                    else:
-                        self.value = self.underlyingValue[self.methodParameter]
+                    
+                    if isinstance(self.methodParameter, slice):
+                        raise InvalidSubscriptionError("Using slice is deprecated. The new API takes methodParameter as a tuple")
+                    
+                    try:
+                        startSlice = self.methodParameter[0]
+                        stopSlice = self.methodParameter[1]
+                    except:
+                        raise InvalidSubscriptionError("Need methodParameter as a tuple. The first element should be the start of the slice and the second element should be the stop of the slice. An optional step is the third element of the tuple")
+                    try:
+                        stepSlice = self.methodParameter[2]
+                    except:
+                        stepSlice = None
+                    
+                    #Check if startSlice/stopSlice/stepSlice are Observe/Subscribe
+                    if isinstance(startSlice, (Observe, Subscribe)):
+                        if self.id not in dependencyGraph[startSlice.id]:
+                            dependencyGraph[startSlice.id].append(self.id)    
+                        
+                        
+                        startSlice = startSlice.value
+                        
+                    if isinstance(stopSlice, (Observe, Subscribe)):
+                        if self.id not in dependencyGraph[stopSlice.id]:
+                            dependencyGraph[stopSlice.id].append(self.id)
+                        stopSlice = stopSlice.value
+                    if isinstance(stepSlice, (Observe, Subscribe, ByteArray, List, Dict, Set)):
+                        raise InvalidSubscriptionError("Step in a slice needs to be an integer. You gave %s"%stepSlice)
+                    
+                    self.value = self.underlyingValue[startSlice : stopSlice : stepSlice]
 
                 elif self.method is 'startswith':
                     if self.methodParameter is None:	#When self.methodParameter isn't declared at __init__
@@ -1138,7 +1219,8 @@ class Subscribe:
             self.operatorsList = list(args['op'])
         except:
             raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
-
+        
+        
         for var in self.variablesSubscribedTo:
             try:
                 if var.id not in idVariableDict:		#if var.id is available but it is not in the dependencyGraph..this is the case when a foreign object might have a parameter called 'id'
@@ -1153,6 +1235,21 @@ class Subscribe:
             raise InvalidSubscriptionError("The number of operators can only be 1 less than the number of operands. Subscription aborted.")
 
             #The scrubbing/sanitization of variables passed is now complete.
+        
+        
+        try:
+            self.rformat = list(args['rformat'])
+            if len(self.rformat) < len(self.operatorsList):
+                #Since the length is shorter, i.e., rformat isn't mentioned for every operation, pad the list with None until its becomes the same size as that of the operatorsList.
+                self.tempLenDiff = len(self.operatorsList) - len(self.rformat)
+                self.rformat.extend([None]*self.tempLenDiff)
+                del self.tempLenDiff
+                print("self.rformat in try at init is %s"%self.rformat)
+        except:
+            self.rformat = [None]*len(self.operatorsList)
+        
+        #At this point, self.rformat becomes available and is of the same length as self.operatorsList
+        #print("self.rformat is %s"%self.rformat)
 
         self.id = uuid.uuid4()
         dependencyGraph[self.id] = []
@@ -1163,11 +1260,14 @@ class Subscribe:
             dependencyGraph[var.id].append(self.id)			#Declare the dependency of the Subsciption object on each of the variablesSubscribedTo.
 
         self.update()		#Call the update method to calculate the value
-
+    
+    #def __index__(self):
+    #    return self.value
 
     def update(self):
         operatorsSet = createSetInPrecedence(self.operatorsList)
         operatorsListCopy = self.operatorsList[:]
+        rformatCopy = self.rformat[:]
         tempVariablesSubscribedTo = self.variablesSubscribedTo[:]
         tempVariablesSubscribedTo2 = []
         for var in tempVariablesSubscribedTo:
@@ -1178,7 +1278,7 @@ class Subscribe:
             #tempVariablesSubscribedTo2 is now the list of all variables with the corresponding values. This aids in calculations
 
         for operator in operatorsSet:
-            tempVariablesSubscribedTo2 = evaluateEquation(tempVariablesSubscribedTo2, operator, operatorsListCopy)
+            (tempVariablesSubscribedTo2, rformatCopy) = evaluateEquation(tempVariablesSubscribedTo2, operator, operatorsListCopy, rformatCopy)
 
         self.value = tempVariablesSubscribedTo2[0]
 
@@ -1291,7 +1391,7 @@ def createSetInPrecedence(operatorsList):
         newOperatorList.append('and')
     return(newOperatorList)				#Returns the set of operators in the order of precedence
 
-def evaluateEquation(alteredList, operator, OperatorsList):
+def evaluateEquation(alteredList, operator, OperatorsList, rFormatList):
     count = OperatorsList.count(operator)
     locOperator = 0
     for i in range(count):
@@ -1310,20 +1410,24 @@ def evaluateEquation(alteredList, operator, OperatorsList):
             secondOperand = alteredList[locOperator + 1].value			#Pick the second operand
         except:
             secondOperand = alteredList[locOperator + 1]
-
-        resultant = evaluateExpression(firstOperand, secondOperand, operator)		#Send the expression to another function, and the result will be replaced in the original variablesToObserve, along with the removal of the operator at that location from OperatorsList
-
+        
+        localRFormat = rFormatList[locOperator]
+        #print("localRFormat in evaluateEquation is %s"%localRFormat)
+        resultant = evaluateExpression(firstOperand, secondOperand, operator, localRFormat)		#Send the expression to another function, and the result will be replaced in the original variablesToObserve, along with the removal of the operator at that location from OperatorsList
+        
+        #print("resultant in evaluateEquation is %s"%resultant)
+        
         alteredList.pop(locOperator)		#Pop the two operands, and replace them with the resultant
         alteredList.pop(locOperator)
-
+        rFormatList.pop(locOperator)
         alteredList.insert(locOperator, resultant)		#Insert the resultant at the location where the two operands have been removed
         OperatorsList.remove(operator)					#Also remove the operator, since it has been evaluated
 
         ###print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
         #locOperator += 1		#Increase the location index so as to find the next location of the current operator
-    return alteredList
+    return (alteredList, rFormatList)
 
-def evaluateExpression(firstOperand, secondOperand, operator):
+def evaluateExpression(firstOperand, secondOperand, operator, localRFormat):
     #Check for the apposite operator, perform the operation nad return the result
     ###print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
 
@@ -1366,4 +1470,16 @@ def evaluateExpression(firstOperand, secondOperand, operator):
     finally:
 
         ###print("Result in evaluateExpression is %s"%result)
-        return result
+        
+        #Formats are ceil, fabs, floor
+        #print("localRFormat in evaluateExpression is %s"%localRFormat)
+        if localRFormat is None or localRFormat == '':
+            return result
+        elif localRFormat in 'ceil':
+            return math.ceil(result)
+        elif localRFormat in 'fabs':
+            return math.fabs(result)
+        elif localRFormat in 'floor':
+            #print("in floor if-else case")
+            return math.floor(result)
+        #return result
