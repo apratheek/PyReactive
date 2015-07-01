@@ -730,6 +730,9 @@ class Observe:
         idVariableDict[self.id] = self
         self.dependency = dependency 					#Setting up the dependency of the Observable to the passed variable
         self.underlyingValue = dependency
+		
+        self.initialCalc = True			#Boolean flag that denotes if this is the first time that the value is being calculated
+		
         #if isinstance(self.underlyingValue, (Observe, Subscribe)):
         #	self.underlyingValue = self.dependency.value
 
@@ -1075,7 +1078,22 @@ class Observe:
             idVariableDict[element].update()
 
         self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
-        self.notify()
+        
+        if self.initialCalc:
+			#This is the first time that it has been calculated. Hence, call notify.
+            self.oldValue = self.value		#Assign the calculated value to self.oldValue. This variable keeps track of the changes in the value.
+            self.initialCalc = False	#Set initialCalc to False since this isn't needed after init
+            self.notify()
+		
+        else:	#Case after initialCalc
+            if self.oldValue == self.value:
+				#Do not notify
+                pass
+            else:
+				#Call the notify method and assign the new value to oldValue
+                self.oldValue = self.value
+                self.notify()
+		#self.notify()
 
     def notify(self):				#Make this the method that is called every time there's a change in the underlying dependency, as the update method is no longer needed.
         """This method is supposed to be overridden to perform anything of value whenever a change occurs"""
