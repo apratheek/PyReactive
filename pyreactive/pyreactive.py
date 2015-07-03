@@ -7,6 +7,21 @@ idVariableDict = {}							#Define a dictionary that maps uuids to the relevant o
 immutableList = []							#Define a list that holds all the immutables, and the changeTo() method is available on items that are present in this list. This ensures that the changeTo() method can be limited to immutables only.
 
 ##################################################################################################################################################################################
+
+#Define the version here
+def version():
+    return "0.2.4"
+    
+
+#Write the map function here
+def mapUpdate(element):
+    try:
+                #When element is Observe/Subscribe
+        idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
+    except:
+                #When element is BDLS
+        idVariableDict[element].onchange()
+
 #Override certain methods of data types imported from mutables
 
 class List(List):
@@ -87,6 +102,12 @@ class List(List):
 
     def onchange(self):
         ##print("List object has changed --> onchange method called")
+        
+        list(map(mapUpdate, dependencyGraph[self.id]))
+        
+        
+        """
+        
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
                 #When element is Observe/Subscribe
@@ -94,6 +115,7 @@ class List(List):
             except:
                 #When element is BDLS
                 idVariableDict[element].onchange()
+        """
 
 
 class Dict(Dict):
@@ -165,6 +187,10 @@ class Dict(Dict):
 
     def onchange(self):
         ##print("List object has changed --> onchange method called")
+        
+        list(map(mapUpdate, dependencyGraph[self.id]))
+        
+        """
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
                 #When element is Observe/Subscribe
@@ -172,6 +198,7 @@ class Dict(Dict):
             except:
                 #When element is BDLS
                 idVariableDict[element].onchange()
+        """
 
 
 class Set(Set):
@@ -183,13 +210,17 @@ class Set(Set):
         idVariableDict[self.id] = self
 
     def onchange(self):
+        list(map(mapUpdate, dependencyGraph[self.id]))
+        
+        """
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
+                #When element is Observe/Subscribe
                 idVariableDict[element].update()								#Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
             except:
                 #When element is BDLS
                 idVariableDict[element].onchange()
-
+        """
 
 class ByteArray(ByteArray):
     def __init__(self, *args):
@@ -202,6 +233,9 @@ class ByteArray(ByteArray):
 
     def onchange(self):
         ##print("List object has changed --> onchange method called")
+        list(map(mapUpdate, dependencyGraph[self.id]))
+        
+        """
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
                 #When element is Observe/Subscribe
@@ -209,6 +243,7 @@ class ByteArray(ByteArray):
             except:
                 #When element is BDLS
                 idVariableDict[element].onchange()
+        """
 
 ##################################################################################################################################################################################
 
@@ -1154,9 +1189,10 @@ class Observe:
 
         ################ Check for type(self.dependency) here. If the type is List, then the methods are different, and if the type is Set, the methods are different. If the declared method isn't associated with the object, raise an Exception
 
+        list(map(mapUpdate, dependencyGraph[self.id]))
 
-        for element in dependencyGraph[self.id]:
-            idVariableDict[element].update()
+        #for element in dependencyGraph[self.id]:
+        #    idVariableDict[element].update()
 
         self.underlyingValue = self.dependency 			#Restore self.underlyingValue from BDLS to Observe class. self.dependency is an Observable, while in the above declaration at the beginning of the update, we've changed it to a BDLS so that further calculations are possible.
 
@@ -1203,8 +1239,11 @@ class Observe:
             else:
                 self.dependency = value
                 self.value = self.dependency
-            for element in dependencyGraph[self.id]:
-                idVariableDict[element].update()
+            
+            list(map(mapUpdate, dependencyGraph[self.id]))
+            
+            #for element in dependencyGraph[self.id]:
+            #    idVariableDict[element].update()
         else:
             raise InvalidSubscriptionError("changeTo method not permitted on mutables, or when the an Observe object is created over another Observe object")
 
@@ -1256,6 +1295,8 @@ class Subscribe:
         idVariableDict[self.id] = self
         self.name = name
 
+        self.operatorsSet = createSetInPrecedence(self.operatorsList)
+        
         for var in self.variablesSubscribedTo:
             dependencyGraph[var.id].append(self.id)			#Declare the dependency of the Subsciption object on each of the variablesSubscribedTo.
 
@@ -1286,7 +1327,9 @@ class Subscribe:
     """
 
     def update(self):
-        operatorsSet = createSetInPrecedence(self.operatorsList)
+        
+        #operatorsSet = createSetInPrecedence(self.operatorsList)
+        operatorsSet = self.operatorsSet
         operatorsListCopy = self.operatorsList[:]
         rformatCopy = self.rformat[:]
         tempVariablesSubscribedTo = self.variablesSubscribedTo[:]
@@ -1303,8 +1346,10 @@ class Subscribe:
 
         self.value = tempVariablesSubscribedTo2[0]
 
-        for element in dependencyGraph[self.id]:
-            idVariableDict[element].update()
+        list(map(mapUpdate, dependencyGraph[self.id]))
+        
+        #for element in dependencyGraph[self.id]:
+        #    idVariableDict[element].update()
 
 
             #Set self.value somewhere here
