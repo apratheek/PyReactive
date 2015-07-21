@@ -316,7 +316,7 @@ class PyReactiveTests(unittest.TestCase):
         self.assertEqual(sub.value, 0)
 
 if __name__ == '__main__':
-    print("\nVersion is %s"%version())
+    print("\nVersion is %s"%pyreactive.version())
     unittest.main()
 
 
