@@ -29,7 +29,7 @@ class ReversePolish:
                                     '*' : 9, '/' : 9, '//' : 9, '%' : 9,    #Multiplication, Division, Remainder
                                     '~' : 10,   #Bitwise NOT
                                     '**' : 11,  #Exponentiation
-                                    'sin' : 12, 'cos' : 12, 'tan' : 12, 'round' : 12, 'ceil' : 12, 'floor' : 12,  #Mathematical functions
+                                    'sin' : 12, 'cos' : 12, 'tan' : 12, 'round' : 12, 'ceil' : 12, 'floor' : 12, 'abs' : 12,  #Mathematical functions
                                     '(' : 13, ')' : 13, '{' : 13, '}' : 13, '[' : 13, ']' : 13  #Parantheses
                                 }
         #Hold the list of applicable operators in a separate list
@@ -37,7 +37,7 @@ class ReversePolish:
         #Hold binary operators in a list
         self.binary_operators = ['or', 'and', '|', '^', '&', '<<', '>>', '+', '-', '*', '/', '//', '%', '**']
         #Hold unary operators in a list
-        self.unary_operators = ['sin', 'cos', 'tan', 'round', 'ceil', 'floor', 'not', '~']
+        self.unary_operators = ['sin', 'cos', 'tan', 'round', 'ceil', 'floor', 'abs', 'not', '~']
         #Hold the matching brackets in another list
         self.matching_brackets = {
                                     '}' : '{',
@@ -218,6 +218,8 @@ class ReversePolish:
                         result = math.ceil(unary_operand)
                     elif token == 'floor':
                         result = math.floor(unary_operand)
+                    elif token == 'abs':
+                        result = math.fabs(unary_operand)
                     elif token == 'not':
                         result = not unary_operand
                     elif token == '~':
