@@ -1,6 +1,7 @@
 import uuid
 import math
 from .mutables import *
+from .postfix import *
 
 dependencyGraph = {}						#Define a central dependency graph that holds all relations between mutables
 idVariableDict = {}							#Define a dictionary that maps uuids to the relevant object eg: idVariableDict[self.id] = self
@@ -11,7 +12,7 @@ immutableList = []							#Define a list that holds all the immutables, and the c
 #Define the version here
 def version():
     return "0.2.4"
-    
+
 
 #Write the map function here
 def mapUpdate(element):
@@ -102,12 +103,12 @@ class List(List):
 
     def onchange(self):
         ##print("List object has changed --> onchange method called")
-        
+
         list(map(mapUpdate, dependencyGraph[self.id]))
-        
-        
+
+
         """
-        
+
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
                 #When element is Observe/Subscribe
@@ -187,9 +188,9 @@ class Dict(Dict):
 
     def onchange(self):
         ##print("List object has changed --> onchange method called")
-        
+
         list(map(mapUpdate, dependencyGraph[self.id]))
-        
+
         """
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
@@ -211,7 +212,7 @@ class Set(Set):
 
     def onchange(self):
         list(map(mapUpdate, dependencyGraph[self.id]))
-        
+
         """
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
@@ -234,7 +235,7 @@ class ByteArray(ByteArray):
     def onchange(self):
         ##print("List object has changed --> onchange method called")
         list(map(mapUpdate, dependencyGraph[self.id]))
-        
+
         """
         for element in dependencyGraph[self.id]:			#Retrieves the list of all elements that will change because of a change in this variable
             try:
@@ -1239,9 +1240,9 @@ class Observe:
             else:
                 self.dependency = value
                 self.value = self.dependency
-            
+
             list(map(mapUpdate, dependencyGraph[self.id]))
-            
+
             #for element in dependencyGraph[self.id]:
             #    idVariableDict[element].update()
         else:
@@ -1296,7 +1297,7 @@ class Subscribe:
         self.name = name
 
         self.operatorsSet = createSetInPrecedence(self.operatorsList)
-        
+
         for var in self.variablesSubscribedTo:
             dependencyGraph[var.id].append(self.id)			#Declare the dependency of the Subsciption object on each of the variablesSubscribedTo.
 
@@ -1327,7 +1328,7 @@ class Subscribe:
     """
 
     def update(self):
-        
+
         #operatorsSet = createSetInPrecedence(self.operatorsList)
         operatorsSet = self.operatorsSet
         operatorsListCopy = self.operatorsList[:]
@@ -1347,7 +1348,7 @@ class Subscribe:
         self.value = tempVariablesSubscribedTo2[0]
 
         list(map(mapUpdate, dependencyGraph[self.id]))
-        
+
         #for element in dependencyGraph[self.id]:
         #    idVariableDict[element].update()
 
