@@ -1329,6 +1329,7 @@ class Subscribe:
     """
 
     def __init__(self, expression, name=''):
+        """The __init__ method of the Subscribe object."""
         self.name = name
         #Create a ReversePolish object
         self.expression_in_rpn = ReversePolish(expression)
@@ -1354,12 +1355,20 @@ class Subscribe:
                         #Flag variable to denote that a corresponding PyReaective object has been found
                         objFound = False
                         for obj in idVariableDict:
-                            if idVariableDict[obj].name == element:
-                                #This is a PyReactive object. Add this to a list of dependencies
-                                self.subLevelList.append(idVariableDict[obj])
-                                objFound = True
-                                #Break out of the for loop when the object is found in the idVariableDict
-                                break
+                            try:
+                                if isinstance(idVariableDict[obj], (Observe, Subscribe)):
+                                    if idVariableDict[obj].name == element:
+                                        #This is a PyReactive object. Add this to a list of dependencies
+                                        self.subLevelList.append(idVariableDict[obj])
+                                        objFound = True
+                                        #Break out of the for loop when the object is found in the idVariableDict
+                                        break
+                                elif isinstance(idVariableDict[obj], (ByteArray, Dict, List, Set)):
+                                    #Could be BDLS
+                                    #Append them to the subLevelList
+                                    self.subLevelList.append(idVariableDict[obj])
+                            except:
+                                raise InvalidSubscriptionError("Don't really know what went wrong.")
                         #At the end of the for loop, if objFound is still False, raise an Exception
                         if objFound is False:
                             raise InvalidSubscriptionError("%s is not a PyReactive object. Subscription Error."%element)
@@ -1369,7 +1378,7 @@ class Subscribe:
                 except:
                     raise InvalidSubscriptionError("Don't really know what went wrong.")
 
-        print("self.subLevelList in Subscribe is %s"%self.subLevelList)
+        #print("self.subLevelList in Subscribe is %s"%self.subLevelList)
 
         self.allDependencies = []        #List that holds all the dependencies
         #for i in args:
@@ -1380,7 +1389,7 @@ class Subscribe:
             #print("self.subLevelList is %s"%self.subLevelList)
 
             if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
-                print("Object is BDLS")
+                #print("Object is BDLS")
                 #This has id, but no .value attribute
                 #Open this node and search if it depends on other lists
                 self.allDependencies.append(self.subLevelList[0].id)
@@ -1395,7 +1404,7 @@ class Subscribe:
                 #print("Object is Observe/Subscribe")
                 #This has id and .value attribute
                 #This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
-                print("Observe/Subscribe object dependency found and is %s"%self.subLevelList[0])
+                #print("Observe/Subscribe object dependency found and is %s"%self.subLevelList[0])
                 self.allDependencies.append(self.subLevelList[0].id)
                 self.subLevelList.pop(0)
 
@@ -1409,65 +1418,42 @@ class Subscribe:
                         #print("element in ELSE is %s"%element)
                         self.subLevelList.append(element)
 
-                print("Python Object. Discarding it")
+                #print("Python Object. Discarding it")
                 self.subLevelList.pop(0)
                 #pass
 
-        print("self.allDependencies is %s"%self.allDependencies)
+        #print("self.allDependencies is %s"%self.allDependencies)
 
         for i in self.allDependencies:
             dependencyGraph[i].append(self.id)
 
         self.update()
 
-
-    """
     def update(self):
-
-        #operatorsSet = createSetInPrecedence(self.operatorsList)
-        operatorsSet = self.operatorsSet
-        operatorsListCopy = self.operatorsList[:]
-        rformatCopy = self.rformat[:]
-        tempVariablesSubscribedTo = self.variablesSubscribedTo[:]
-        tempVariablesSubscribedTo2 = []
-        for var in tempVariablesSubscribedTo:
-            if isinstance(var, (Observe, Subscribe)):
-                tempVariablesSubscribedTo2.append(var.value)    #In case var is an Observe/Subscribe object
-            else:
-                tempVariablesSubscribedTo2.append(var)        #In case var is a simple BDLS
-            #tempVariablesSubscribedTo2 is now the list of all variables with the corresponding values. This aids in calculations
-
-        for operator in operatorsSet:
-            (tempVariablesSubscribedTo2, rformatCopy) = evaluateEquation(tempVariablesSubscribedTo2, operator, operatorsListCopy, rformatCopy)
-
-        self.value = tempVariablesSubscribedTo2[0]
-
-        list(map(mapUpdate, dependencyGraph[self.id]))
-
-        #for element in dependencyGraph[self.id]:
-        #    idVariableDict[element].update()
-
-
-            #Set self.value somewhere here
-        self.notify()
-    """
-
-    def update(self):
+        """Internal method which is called to update the value of the object when its subscribed values change."""
         #Instead of passing the postfix_stack object attribute, make a shallow copy of it and replace other objects with their arithmetic values and then pass it. Keeps the data model in sync.
         stackToSend = self.expression_in_rpn.postfix_stack[:]
-        print("stackToSend in update() is %s"%stackToSend)
+        #print("stackToSend in update() is %s"%stackToSend)
 
         #Iterate over the values in the stack. If it is an identifier, then it certainly has to be a PyReactive object as otherwise, an error would've been thrown at __init__ itself. Replace the identifier with its value.
         #If it isn't an identifier, then it must either be an integer/float, or an operator. So don't process it.
         for i in range(len(stackToSend)):
             if stackToSend[i].isidentifier():
-                print("Identifier %s found"%stackToSend[i])
+                #print("Identifier %s found"%stackToSend[i])
                 elementToReplace = stackToSend.pop(i)
+                ############################################
+                #CAN BE MODIFIED TO LOOP THROUGH ONLY THE DEPENDENCY-GRAPH OF THE OBJECT. THAT WOULD MAKE IT RELATIVELY FASTER
+                ############################################
                 for element in idVariableDict:
-                    if idVariableDict[element].name == elementToReplace:
-                        #Replace the element with the corresponding arithmetic value
-                        stackToSend.insert(i, idVariableDict[element].value)
-                        break
+                    if isinstance(idVariableDict[element], (Observe, Subscribe)):
+                        if idVariableDict[element].name == elementToReplace:
+                            #Replace the element with the corresponding arithmetic value
+                            stackToSend.insert(i, idVariableDict[element].value)
+                            break
+                    else:
+                        #Instance of BDLS
+                        #Do nothing
+                        pass
             else:
                 pass
 
@@ -1477,6 +1463,7 @@ class Subscribe:
         self.notify()
 
     def notify(self):
+        """Override this method to notify after the Subscribe object's value has changed."""
         pass
 
     def append(self, **args):
@@ -1507,25 +1494,7 @@ class Subscribe:
 
     def equation(self):
         """Returns the current equation of the subscription"""
-        equationString = ''
-        if self.name != '':
-            equationString = self.name + ' ='
-        for i in range(len(self.variablesSubscribedTo)):
-            if i < len(self.operatorsList):
-                operatorEqn = self.operatorsList[i]
-            else:
-                operatorEqn = ''
-            try:
-                if self.variablesSubscribedTo[i].name == '':        #Case when name hasn't been defined
-                    nameOfVariable = str(self.variablesSubscribedTo[i])
-                else:
-                    nameOfVariable = self.variablesSubscribedTo[i].name
-            except:
-                nameOfVariable = str(self.variablesSubscribedTo[i])
-
-            equationString += ' ' + nameOfVariable + ' ' + operatorEqn        #Instead of using .get(), use self.variablesSubscribedTo.variableName here. Store variableName as an Observe class parameter and declare it at __init__ itself.
-        self.equationString = equationString
-        return self.equationString
+        return self.expression_in_rpn
 
 
 
