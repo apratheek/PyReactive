@@ -1392,38 +1392,112 @@ class Subscribe:
         """Override this method to notify after the Subscribe object's value has changed."""
         pass
 
-    def append(self, **args):
-        """Append operands and operators to the existing object. Format is similar to __init__"""
-        try:
-            variablesSubscribedTo = list(args['var'])
-            operatorsList = list(args['op'])
-        except:
-            raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
+    def append(self, expression):
+        """"Append operands and operators to the existing object. Format is similar to __init__. name argument is not available."""
+        #Create an updated ReversePolish object
+        self.expression_in_rpn = ReversePolish(str(self.expression_in_rpn)+expression)
+        #self.expression_in_rpn consists of the subscribed equation in the postfix notation. This is free of any brackets, and hence, can be reused to valuate the equation at any point of time. So, the overhead of generating the postfix notation occurs just once per object.
+        #Store a copy of postfix_stack
+        localPostfixStack = self.expression_in_rpn.postfix_stack[:]
+        self.subLevelList = []
 
-        for var in variablesSubscribedTo:
-            try:
-                if var.id not in idVariableDict:        #if var.id is available but it is not in the dependencyGraph..this is the case when a foreign object might have a parameter called 'id'
-                    raise InvalidSubscriptionError("Can't subscribe to a foreign object. Subscribe only supports ByteArray, List, Dict, Set, and other Observe objects as of yet.")
-            except:                    #This is the case when var.id in the try segment fails. That is, the object has not 'id' parameter
-                raise InvalidSubscriptionError("Can't subscribe to object %s. Not supported yet."%var)
+        #Check for other Subscribe/Observe objects inside the expression and add them to the dependency graph.
+        for element in localPostfixStack:
+            #Check if element in the stack is an identifier or an operator.
+            if element in self.expression_in_rpn.applicable_operators:
+                #This is an operator. Ignore this.
+                pass
+            else:
+                #Case when element is either a PyReactive object, an integer/float in string, or an unknown identifier.
+                try:
+                    if element.isidentifier():
+                        #Could be a PyReactive object or a foreign object. Certainly can't be float or integer.
+                        #Flag variable to denote that a corresponding PyReaective object has been found
+                        objFound = False
+                        for obj in idVariableDict:
+                            try:
+                                if isinstance(idVariableDict[obj], (Observe, Subscribe)):
+                                    if idVariableDict[obj].name == element:
+                                        #This is a PyReactive object. Add this to a list of dependencies
+                                        self.subLevelList.append(idVariableDict[obj])
+                                        objFound = True
+                                        #Break out of the for loop when the object is found in the idVariableDict
+                                        break
+                                elif isinstance(idVariableDict[obj], (ByteArray, Dict, List, Set)):
+                                    #Could be BDLS
+                                    #Append them to the subLevelList
+                                    self.subLevelList.append(idVariableDict[obj])
+                            except:
+                                raise InvalidSubscriptionError("Don't really know what went wrong.")
+                        #At the end of the for loop, if objFound is still False, raise an Exception
+                        if objFound is False:
+                            raise NameError("%s is not a PyReactive object. Name Error. Need to initialise Observe objects with name."%element)
+                    else:
+                        #Case when isidentifier is False --> integer or float
+                        pass
+                except:
+                    raise NameError("%s is not a PyReactive object. Name Error. Need to initialise Observe objects with name."%element)
+                    pass
 
+        #print("self.subLevelList in Subscribe is %s"%self.subLevelList)
 
-            #All variables now can be safely assumed to have a presence in the dependencyGraph
+        self.allDependencies = []        #List that holds all the dependencies
+        #for i in args:
+        while self.subLevelList:
+            #Need to recursively resolve dependencies
+            #Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
 
-        self.variablesSubscribedTo += variablesSubscribedTo     #Update the object variables
-        self.operatorsList += operatorsList
+            #print("self.subLevelList is %s"%self.subLevelList)
 
-        if len(self.variablesSubscribedTo) - 1 != len(self.operatorsList):        #Case when the required number of operators mismatches the number of operands
-            raise InvalidSubscriptionError("The number of operators can only be 1 less than the number of operands. Subscription aborted.")
+            if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
+                #print("Object is BDLS")
+                #This has id, but no .value attribute
+                #Open this node and search if it depends on other lists
+                self.allDependencies.append(self.subLevelList[0].id)
+                for element in self.subLevelList[0]:
+                    if isinstance(element, (ByteArray, Dict, List, Set, Observe, Subscribe)):
+                        self.allDependencies.append(element.id)
+                        self.subLevelList.append(element)
+
+                self.subLevelList.pop(0)
+
+            elif isinstance(self.subLevelList[0], (Observe, Subscribe)):
+                #print("Object is Observe/Subscribe")
+                #This has id and .value attribute
+                #This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
+                #print("Observe/Subscribe object dependency found and is %s"%self.subLevelList[0])
+                self.allDependencies.append(self.subLevelList[0].id)
+                self.subLevelList.pop(0)
+
+            else:
+                #This is a normal object. Discard it from the list
+                #Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
+
+                if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
+                    #THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
+                    for element in self.subLevelList[0]:
+                        #print("element in ELSE is %s"%element)
+                        self.subLevelList.append(element)
+
+                #print("Python Object. Discarding it")
+                self.subLevelList.pop(0)
+                #pass
+
+        #print("self.allDependencies is %s"%self.allDependencies)
+        for i in self.allDependencies:
+            if self.id in dependencyGraph[i]:
+                pass
+            else:
+                #Append to the dependencyGraph of other elements only if this element was not present previously
+                dependencyGraph[i].append(self.id)
 
         self.update()
+
+
 
     def equation(self):
         """Returns the current equation of the subscription"""
         return self.expression_in_rpn
-
-
-
 
     def __repr__(self):
         return("%s"%self.value)
