@@ -31,18 +31,13 @@ class List(List):
         dependencyGraph[self.id] = []
         idVariableDict[self.id] = self
         ##print(args)
-
-
-
         self.subLevelList = args[:]        #List that consists of all elements one level below the current level
         self.allDependencies = []        #List that holds all the dependencies
         #for i in args:
         while self.subLevelList:
             #Need to recursively resolve dependencies
             #Try: i.id --> if it passes, i is a PyReactive Object. If it throws an error, i is a normal data type
-
             #print("self.subLevelList is %s"%self.subLevelList)
-
             if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
                 #print("Object is BDLS")
                 #This has id, but no .value attribute
@@ -65,7 +60,6 @@ class List(List):
             else:
                 #This is a normal object. Discard it from the list
                 #Need to dig deeper here. If the object is a list, which consists of BDSL, can't drop it. Need to change this behavior
-
                 if isinstance(self.subLevelList[0], (list, dict, bytearray, set)):
                     #THere's a chance that an element inside this object could be of BDLS. Hence, open this object and tack them to the end of self.subLevelList so that when they appear as fundamental python datatypes, they can be ignored right in this else block.
                     for element in self.subLevelList[0]:
@@ -76,48 +70,14 @@ class List(List):
                 self.subLevelList.pop(0)
                 #pass
 
-
-            #try:
-                #Check if i is a PyReactive object. Use the isinstance method instead of a try catch.
-            #    if self.subLevelList[0].id in dependencyGraph:
-                    #This is a PyReactive Object. Recursively, resolve its dependencies
-            #        #print("PyReactive Object")
-
-                    #Open the node and search it for other PyReactive Objects.
-
-                    #Here, check if self.subLevelList[0] is BDSL or an Observe object or a Subscribe object
-            #except:
-                #The element is neither BDLS nor Observe/Subscribe. Hence, discard it
-            #    self.subLevelList.pop(0)
-            ##print(i)
-        #dependencyGraph[self.id] = self.allDependencies[:]
-
         for i in self.allDependencies:
             dependencyGraph[i].append(self.id)
 
         super(List, self).__init__(args)
-        #At __init__, set up an entry in the dependencyGraph
-
-        ##print(dependencyGraph)
-        ###print("List initialised")
 
     def onchange(self):
-        ##print("List object has changed --> onchange method called")
-
+        """Internal method. Trigger a change in other objects that dependen on self"""
         list(map(mapUpdate, dependencyGraph[self.id]))
-
-
-        """
-
-        for element in dependencyGraph[self.id]:            #Retrieves the list of all elements that will change because of a change in this variable
-            try:
-                #When element is Observe/Subscribe
-                idVariableDict[element].update()                                #Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
-            except:
-                #When element is BDLS
-                idVariableDict[element].onchange()
-        """
-
 
 class Dict(Dict):
     def __init__(self, args):
@@ -126,13 +86,9 @@ class Dict(Dict):
         self.id = uuid.uuid4()
         dependencyGraph[self.id] = []
         idVariableDict[self.id] = self
-
-
         #####################################
         #In dicts, keys cannot be set/list/dict/bytearray. Store all the values in self.subLevelList. Then run the search, because it would then be similar to a search on a List.
         #####################################
-
-        ##print("args are %s"%args)
 
         self.subLevelList = []
 
@@ -187,20 +143,8 @@ class Dict(Dict):
         super(Dict, self).__init__(args)
 
     def onchange(self):
-        ##print("List object has changed --> onchange method called")
-
+        """Internal method. Trigger a change in other objects that dependen on self"""
         list(map(mapUpdate, dependencyGraph[self.id]))
-
-        """
-        for element in dependencyGraph[self.id]:            #Retrieves the list of all elements that will change because of a change in this variable
-            try:
-                #When element is Observe/Subscribe
-                idVariableDict[element].update()                                #Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
-            except:
-                #When element is BDLS
-                idVariableDict[element].onchange()
-        """
-
 
 class Set(Set):
     def __init__(self, args):
@@ -211,17 +155,8 @@ class Set(Set):
         idVariableDict[self.id] = self
 
     def onchange(self):
+        """Internal method. Trigger a change in other objects that dependen on self"""
         list(map(mapUpdate, dependencyGraph[self.id]))
-
-        """
-        for element in dependencyGraph[self.id]:            #Retrieves the list of all elements that will change because of a change in this variable
-            try:
-                #When element is Observe/Subscribe
-                idVariableDict[element].update()                                #Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
-            except:
-                #When element is BDLS
-                idVariableDict[element].onchange()
-        """
 
 class ByteArray(ByteArray):
     def __init__(self, *args):
@@ -233,18 +168,8 @@ class ByteArray(ByteArray):
 
 
     def onchange(self):
-        ##print("List object has changed --> onchange method called")
+        """Internal method. Trigger a change in other objects that dependen on self"""
         list(map(mapUpdate, dependencyGraph[self.id]))
-
-        """
-        for element in dependencyGraph[self.id]:            #Retrieves the list of all elements that will change because of a change in this variable
-            try:
-                #When element is Observe/Subscribe
-                idVariableDict[element].update()                                #Calls the update method on every Observable as well as Subscriptions; additionally, this won't crash, because a generic data type cannot depend on another generic data type. This privilege is only enjoyed by Observables and Subscriptions
-            except:
-                #When element is BDLS
-                idVariableDict[element].onchange()
-        """
 
 ##################################################################################################################################################################################
 
@@ -1371,12 +1296,13 @@ class Subscribe:
                                 raise InvalidSubscriptionError("Don't really know what went wrong.")
                         #At the end of the for loop, if objFound is still False, raise an Exception
                         if objFound is False:
-                            raise InvalidSubscriptionError("%s is not a PyReactive object. Subscription Error."%element)
+                            raise NameError("%s is not a PyReactive object. Name Error. Need to initialise Observe objects with name."%element)
                     else:
                         #Case when isidentifier is False --> integer or float
                         pass
                 except:
-                    raise InvalidSubscriptionError("Don't really know what went wrong.")
+                    raise NameError("%s is not a PyReactive object. Name Error. Need to initialise Observe objects with name."%element)
+                    pass
 
         #print("self.subLevelList in Subscribe is %s"%self.subLevelList)
 
