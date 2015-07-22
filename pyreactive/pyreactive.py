@@ -1356,7 +1356,7 @@ class Subscribe:
                         for obj in idVariableDict:
                             if idVariableDict[obj].name == element:
                                 #This is a PyReactive object. Add this to a list of dependencies
-                                self.subLevelList.append(obj)
+                                self.subLevelList.append(idVariableDict[obj])
                                 objFound = True
                                 #Break out of the for loop when the object is found in the idVariableDict
                                 break
@@ -1369,6 +1369,7 @@ class Subscribe:
                 except:
                     raise InvalidSubscriptionError("Don't really know what went wrong.")
 
+        print("self.subLevelList in Subscribe is %s"%self.subLevelList)
 
         self.allDependencies = []        #List that holds all the dependencies
         #for i in args:
@@ -1379,7 +1380,7 @@ class Subscribe:
             #print("self.subLevelList is %s"%self.subLevelList)
 
             if isinstance(self.subLevelList[0], (ByteArray, Dict, List, Set)):
-                #print("Object is BDLS")
+                print("Object is BDLS")
                 #This has id, but no .value attribute
                 #Open this node and search if it depends on other lists
                 self.allDependencies.append(self.subLevelList[0].id)
@@ -1394,6 +1395,7 @@ class Subscribe:
                 #print("Object is Observe/Subscribe")
                 #This has id and .value attribute
                 #This needs to be pondered over. Would there be cases where there are nested Observe/Subscribe objects?
+                print("Observe/Subscribe object dependency found and is %s"%self.subLevelList[0])
                 self.allDependencies.append(self.subLevelList[0].id)
                 self.subLevelList.pop(0)
 
@@ -1407,9 +1409,11 @@ class Subscribe:
                         #print("element in ELSE is %s"%element)
                         self.subLevelList.append(element)
 
-                #print("Python Object. Discarding it")
+                print("Python Object. Discarding it")
                 self.subLevelList.pop(0)
                 #pass
+
+        print("self.allDependencies is %s"%self.allDependencies)
 
         for i in self.allDependencies:
             dependencyGraph[i].append(self.id)
@@ -1451,11 +1455,13 @@ class Subscribe:
     def update(self):
         #Instead of passing the postfix_stack object attribute, make a shallow copy of it and replace other objects with their arithmetic values and then pass it. Keeps the data model in sync.
         stackToSend = self.expression_in_rpn.postfix_stack[:]
+        print("stackToSend in update() is %s"%stackToSend)
 
         #Iterate over the values in the stack. If it is an identifier, then it certainly has to be a PyReactive object as otherwise, an error would've been thrown at __init__ itself. Replace the identifier with its value.
         #If it isn't an identifier, then it must either be an integer/float, or an operator. So don't process it.
         for i in range(len(stackToSend)):
             if stackToSend[i].isidentifier():
+                print("Identifier %s found"%stackToSend[i])
                 elementToReplace = stackToSend.pop(i)
                 for element in idVariableDict:
                     if idVariableDict[element].name == elementToReplace:
@@ -1526,145 +1532,3 @@ class Subscribe:
 
     def __repr__(self):
         return("%s"%self.value)
-
-
-
-"""
-def createSetInPrecedence(operatorsList):
-    newOperatorList = []
-    #Check for all operators here. In future, this can accomodate more operators
-    if '**' in operatorsList:
-        newOperatorList.append('**')
-        ####print("newOperatorList is %s"%newOperatorList)
-    #if '~' in operatorsList:    #This is a unary operand. Should be on the observe object
-    #    newOperatorList.append('~')
-
-
-    if '*' in operatorsList:
-        newOperatorList.append('*')
-        ####print("newOperatorList is %s"%newOperatorList)
-    if '/' in operatorsList:
-        newOperatorList.append('/')
-        ###print("newOperatorList is %s"%newOperatorList)
-    if '%' in operatorsList:
-        newOperatorList.append('%')
-        ###print("newOperatorList is %s"%newOperatorList)
-    if '//' in operatorsList:
-        newOperatorList.append('//')
-        ###print("newOperatorList is %s"%newOperatorList)
-    if '+' in operatorsList:
-        newOperatorList.append('+')
-        ###print("newOperatorList is %s"%newOperatorList)
-    if '-' in operatorsList:
-        newOperatorList.append('-')
-        ###print("newOperatorList is %s"%newOperatorList)
-
-    if '>>' in operatorsList:
-        newOperatorList.append('>>')
-    if '<<' in operatorsList:
-        newOperatorList.append('<<')
-    if '&' in operatorsList:
-        newOperatorList.append('&')
-    if '^' in operatorsList:
-        newOperatorList.append('^')
-    if '|' in operatorsList:
-        newOperatorList.append('|')
-    if 'or' in operatorsList:
-        newOperatorList.append('or')
-    if 'and' in operatorsList:
-        newOperatorList.append('and')
-    return(newOperatorList)                #Returns the set of operators in the order of precedence
-
-def evaluateEquation(alteredList, operator, OperatorsList, rFormatList):
-    count = OperatorsList.count(operator)
-    locOperator = 0
-    for i in range(count):
-        ##print("Count value is %s"%i)
-        ##print("locOperator is %s"%locOperator)
-        ##print("OperatorsList is %s"%OperatorsList)
-        locOperator = OperatorsList.index(operator, locOperator)
-        #Found the index of the operator. Now, find the corresponding 2 variables in variablesToObserve and perform the operation
-        #Perform the evaluation of variablesToObserve[locOperator]-'operator'-variablesToObserve[locOperator+1] here, and replace the two variables with the evaluated result at the location - 'locOperator'
-
-        try:
-            firstOperand = alteredList[locOperator].value                #Pick the first operand
-        except:
-            firstOperand = alteredList[locOperator]
-        try:
-            secondOperand = alteredList[locOperator + 1].value            #Pick the second operand
-        except:
-            secondOperand = alteredList[locOperator + 1]
-
-        localRFormat = rFormatList[locOperator]
-        #print("localRFormat in evaluateEquation is %s"%localRFormat)
-        resultant = evaluateExpression(firstOperand, secondOperand, operator, localRFormat)        #Send the expression to another function, and the result will be replaced in the original variablesToObserve, along with the removal of the operator at that location from OperatorsList
-
-        #print("resultant in evaluateEquation is %s"%resultant)
-
-        alteredList.pop(locOperator)        #Pop the two operands, and replace them with the resultant
-        alteredList.pop(locOperator)
-        rFormatList.pop(locOperator)
-        alteredList.insert(locOperator, resultant)        #Insert the resultant at the location where the two operands have been removed
-        OperatorsList.remove(operator)                    #Also remove the operator, since it has been evaluated
-
-        ###print("AlteredList has become %s and OperatorsList has become %s"%(alteredList, OperatorsList))
-        #locOperator += 1        #Increase the location index so as to find the next location of the current operator
-    return (alteredList, rFormatList)
-
-def evaluateExpression(firstOperand, secondOperand, operator, localRFormat):
-    #Check for the apposite operator, perform the operation nad return the result
-    ###print("Operator received in evaluateExpression is %s and type of operator is %s"%(operator,type(operator)))
-
-    if len(operator) >= 2:        #In case the operand consists of 2 characters. e.g., **,//, and other set operations. Greater than is used so as to leave a vacancy to extend future user-defined operators
-        operator = operator[:]
-
-    try:
-        if '**' in operator:
-            result = firstOperand**secondOperand
-        elif operator is '-':
-            result = firstOperand - secondOperand
-        elif operator is '/':
-            result = firstOperand/secondOperand
-        elif operator is '*':
-            result = firstOperand*secondOperand
-        elif '//' in operator:
-            result = firstOperand//secondOperand
-        elif operator is '+':
-            result = firstOperand + secondOperand
-        elif operator is '%':
-            result = firstOperand%secondOperand
-        elif '<<' in operator:
-            result = firstOperand<<secondOperand
-        elif '>>' in operator:
-            result = firstOperand>>secondOperand
-        elif operator is '&':
-            result = firstOperand & secondOperand
-        elif operator is '|':
-            result = firstOperand | secondOperand
-        #elif operator is '~':
-        #    result = firstOperand ~ secondOperand
-        elif operator is '^':
-            result = firstOperand ^ secondOperand
-        elif operator is 'and':
-            result = firstOperand and secondOperand
-        elif operator is 'or':
-            result = firstOperand or secondOperand
-        else:
-            raise TypeError("No %s operator found"%operator)
-    finally:
-
-        ###print("Result in evaluateExpression is %s"%result)
-
-        #Formats are ceil, fabs, floor
-        #print("localRFormat in evaluateExpression is %s"%localRFormat)
-        if localRFormat is None or localRFormat == '':
-            return result
-        elif localRFormat in 'ceil':
-            return math.ceil(result)
-        elif localRFormat in 'fabs':
-            return math.fabs(result)
-        elif localRFormat in 'floor':
-            #print("in floor if-else case")
-            return math.floor(result)
-        #return result
-"""
