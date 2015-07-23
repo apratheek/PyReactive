@@ -13,7 +13,6 @@ immutableList = []                            #Define a list that holds all the 
 def version():
     return "0.3.0"
 
-
 #Write the map function here
 def mapUpdate(element):
     try:
@@ -705,6 +704,7 @@ class Observe:
 
             """
     def __init__(self, dependency, name='', method='', methodParameter=None):
+        """The __init__ method of Observe class. Takes in a mandatory dependency, a semi-mandatory name argument (mandatory in case this object needs to be used as part of an expression when dealing with Subscriptions), and an optional methodParameter."""
         self.id = uuid.uuid4()                                    #Using ids because without them, in case of unhashable data types such as Lists, we cannot create the dependencyGraph. Hence, uuids to the rescue
         self.name = name
         self.methodParameter = methodParameter
@@ -770,7 +770,7 @@ class Observe:
 
 
     def update(self):
-        """Sets the value of the Observable every time this is called. It is called at __init__ and at every time that the underlying dependency changes. If the underlying dependency is a native mutable or a native immutable, this method won't be called. This is only called when the dependency belongs to BDLS"""
+        """Internal method. Sets the value of the Observable every time this is called. It is called at __init__ and at every time that the underlying dependency changes. If the underlying dependency is a native mutable or a native immutable, this method won't be called. This is only called when the dependency belongs to BDLS"""
         #Update method cannot be removed, since it would also deal with Observable methods suchs as sort, remove etc.
 
 
@@ -1183,39 +1183,84 @@ class Observe:
 class Subscribe:
     """Deals with subscriptions of observables/mutables
 
-    The API has been altered. Legacy API until prior version was as follows:
+    The API has been altered. Bear in mind that the legacy API no longer works. This is purely for reference purposes. Legacy API until prior version was as follows:
 
-    SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....))
+            SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....))
 
     The new API is far simpler and intuitive. Simply pass an infix (commonly used mathematical notation) expression and you're good to go.
 
-    SubscribeObject = Subscribe('1+2/3-(9/8)+round(7/6)')
+            SubscribeObject = Subscribe(self, expression, name='')
 
-    """
+            #Accepts and optional name parameter.
 
+    >>>SubscribeObject1 = Subscribe('1+2/3-(9/8)+round(7/6)')
+    >>>SubscribeObject2 = Subscribe('a+b/2-c/3+sin(pi/a)'), where a, b, pi, and c are PyReactive Observe objects whose name attributes are a, b, pi, and c respectively.
 
-    """
-    or
+    --> For the second equation to work, we'd need a, b, and c initialised. Say,
 
-    **API:** **SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....), rformat=('fabs', 'ceil', 'floor'))**
+    >>>a = Observe(2, name='a')     #>>>alpha = Observe(2, name='a') would also work.
+    >>>b = Observe(3, name='b')
+    >>>pi = Observe(math.pi, name='pi')     #imports math automatically as it is used behind the scenes
+    >>>c = Observe(4, name='c')
 
-    A Subscribe object also takes an optional **rformat** which accepts either **ceil**, **floor**, **fabs**. These are similar to the methods available in the standard **math** module. **ceil** would compute the ceil value of the two operands, **fabs** would compute the absolute value of the two operands, and **floor** would compute the floor value of the two operands. **rformat** is a tuple with its order similar to that of **op**. If no return format needs to be specified, it also accepts **None** or **''**.
+    --> The following operators are currently supported:
 
-    If the equation is 2 + floor(5/4) x ceil(20/3) + abs(-4/2), then the Subscribe object is:
-```python
->>>op1 = Observe(2)
->>>op2 = Observe(5)
->>>op3 = Observe(4)
->>>op4 = Observe(20)
->>>op5 = Observe(3)
->>>op6 = Observe(-4)
->>>op7 = Observe(2)
->>>eqn = Subscribe(var=(op1, op2, op3, op4, op5, op6, op7), op=('+', '/','*','/', '+', '/'), rformat=(None, 'floor', None, 'ceil', None, 'fabs'))
-```
+    A) Binary Operators (In order of precedence from least to highest)
+
+    1.  'or' - Boolean OR
+    2.  'and' - Boolean AND
+    3.  'not' - Boolean NOT
+    4.  '|' - Bitwise OR
+    5.  '^' - Bitwise XOR
+    6.  '^' - Bitwise AND
+    7.  '<<' - Bitwise LEFT Shift
+    8.  '>>' - Bitwise RIGHT Shift
+    9.  '+' - Addition
+    10. '-' - Subtraction
+    11. '*' - Multiplication
+    12. '/' - Division
+    13. '//' - Floor Division
+    14. '%' - Modulo Division
+    15. '~' - Bitwise NOT
+    16. '**' - Exponentiation
+
+    B) Unary Operators (With the same order of precedence, in the mentioned order from Left to Right)
+
+    1. 'sin' - math.sin (Returns the sine of the value)
+    2. 'cos' - math.cos (Returns the cosine of the value)
+    3. 'tan' - math.tan (Returns the tan of the value)
+    4. 'round' - round (Rounds to the nearest integer; does not round to a particular precision as of yet)
+    5. 'ceil' - math.ceil (Rounds to the lowest integer greater than the value)
+    6. 'floor' - math.floor (Rounds to the greatest integer lower than the value)
+    7. 'abs' - math.fabs (Returns the absolute value)
+
+    Example API:
+
+    >>>from pyreactive import *
+    >>>a = Observe(2, name='a')
+    >>>b = Observe(3, name='b')
+    >>>pi = Observe(math.pi, name='pi')         #Auto imports math too
+    >>>c = Observe(4, name='c')
+    >>> eqn = Subscribe('a+b/2-c/3+sin(pi/a)')
+    >>>eqn
+    3.166666666666667
+    >>>a.changeTo(-1)
+    >>>eqn
+    -0.8333333333333334
+    >>>c.changeTo(9)
+    >>>eqn
+    -2.5
+    >>>eqn.equation()       #Display the current equation
+    a+b/2-c/3+sin(pi/a)
+    >>>eqn.append('-cos(2*pi/a**2)+ceil(a/b)')          #Extend the equation with the new expression
+    >>>eqn
+    -3.5
+    >>>eqn.equation()
+    a+b/2-c/3+sin(pi/a)-cos(2*pi/a**2)+ceil(a/b)
     """
 
     def __init__(self, expression, name=''):
-        """The __init__ method of the Subscribe object."""
+        """The __init__ method of the Subscribe object. Takes the expression and an optional name argument."""
         self.name = name
         #Create a ReversePolish object
         self.expression_in_rpn = ReversePolish(expression)
@@ -1359,7 +1404,12 @@ class Subscribe:
         pass
 
     def append(self, expression):
-        """"Append operands and operators to the existing object. Format is similar to __init__. name argument is not available."""
+        """"Append operands and operators to the existing object. Format is similar to __init__. name argument is not available.
+
+            append(self, expression)
+
+            The new expression needs to begin with a binary operator as it wouldn't really combine to form a mathematical expression otherwise. Throws an expression if the combined expression isn't valid.
+        """
         #Create an updated ReversePolish object
         self.expression_in_rpn = ReversePolish(str(self.expression_in_rpn)+expression)
         #self.expression_in_rpn consists of the subscribed equation in the postfix notation. This is free of any brackets, and hence, can be reused to valuate the equation at any point of time. So, the overhead of generating the postfix notation occurs just once per object.
@@ -1458,8 +1508,6 @@ class Subscribe:
                 dependencyGraph[i].append(self.id)
 
         self.update()
-
-
 
     def equation(self):
         """Returns the current equation of the subscription"""
