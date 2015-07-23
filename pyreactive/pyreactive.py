@@ -179,7 +179,7 @@ class InvalidSubscriptionError(Exception):
 
 class Observe:
     """Deals with all observables
-        Takes the dependency, an optional name for the object, an optional method, and an optional method parameter.
+        Takes the dependency, an optional name for the object (mandatory if a Subscribe object is to be created; best practice is to assign the same name as the variable name), an optional method, and an optional method parameter.
         The optional methods are:
 
         1. In case of List
@@ -1175,63 +1175,18 @@ class Observe:
 
 
 class Subscribe:
-    """Deals with subscriptions of observables/mutables"""
+    """Deals with subscriptions of observables/mutables
+
+    The API has been altered. Legacy API until prior version was as follows:
+
+    SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....))
+
+    The new API is far simpler and intuitive. Simply pass an infix (commonly used mathematical notation) expression and you're good to go.
+
+    SubscribeObject = Subscribe('1+2/3-(9/8)+round(7/6)')
 
     """
-    def __init__(self, name='', **args):
-        ""Initialize the object with an optional name and variables and corresponding operators. e.g., Subscribe(var=(a,b), op=('+',)). Need a minimum of 2 operands and 1 operator. Unary operators are handled in the case of Observe objects.""
-        try:
-            self.variablesSubscribedTo = list(args['var'])
-            self.operatorsList = list(args['op'])
-        except:
-            raise InvalidSubscriptionError("Can't initialize a subscription with no observables")
 
-
-        for var in self.variablesSubscribedTo:
-            try:
-                if var.id not in idVariableDict:        #if var.id is available but it is not in the dependencyGraph..this is the case when a foreign object might have a parameter called 'id'
-                    raise InvalidSubscriptionError("Can't subscribe to a foreign object. Subscribe only supports ByteArray, List, Dict, Set, and other Observe objects as of yet.")
-            except:                    #This is the case when var.id in the try segment fails. That is, the object has not 'id' parameter
-                raise InvalidSubscriptionError("Can't subscribe to object %s. Not supported yet."%var)
-
-
-            #All variables now can be safely assumed to have a presence in the dependencyGraph
-
-        if len(self.variablesSubscribedTo) - 1 != len(self.operatorsList):        #Case when the required number of operators mismatches the number of operands
-            raise InvalidSubscriptionError("The number of operators can only be 1 less than the number of operands. Subscription aborted.")
-
-            #The scrubbing/sanitization of variables passed is now complete.
-
-
-        try:
-            self.rformat = list(args['rformat'])
-            if len(self.rformat) < len(self.operatorsList):
-                #Since the length is shorter, i.e., rformat isn't mentioned for every operation, pad the list with None until its becomes the same size as that of the operatorsList.
-                self.tempLenDiff = len(self.operatorsList) - len(self.rformat)
-                self.rformat.extend([None]*self.tempLenDiff)
-                del self.tempLenDiff
-                #print("self.rformat in try at init is %s"%self.rformat)
-        except:
-            self.rformat = [None]*len(self.operatorsList)
-
-        #At this point, self.rformat becomes available and is of the same length as self.operatorsList
-        #print("self.rformat is %s"%self.rformat)
-
-        self.id = uuid.uuid4()
-        dependencyGraph[self.id] = []
-        idVariableDict[self.id] = self
-        self.name = name
-
-        self.operatorsSet = createSetInPrecedence(self.operatorsList)
-
-        for var in self.variablesSubscribedTo:
-            dependencyGraph[var.id].append(self.id)            #Declare the dependency of the Subsciption object on each of the variablesSubscribedTo.
-
-        self.update()        #Call the update method to calculate the value
-
-    #def __index__(self):
-    #    return self.value
-    """
 
     """
     or
@@ -1364,9 +1319,11 @@ class Subscribe:
         #Iterate over the values in the stack. If it is an identifier, then it certainly has to be a PyReactive object as otherwise, an error would've been thrown at __init__ itself. Replace the identifier with its value.
         #If it isn't an identifier, then it must either be an integer/float, or an operator. So don't process it.
         for i in range(len(stackToSend)):
+            #print("i in loop is %s"%i)
             if stackToSend[i].isidentifier():
                 #print("Identifier %s found"%stackToSend[i])
-                elementToReplace = stackToSend.pop(i)
+                elementToReplace = stackToSend[i]
+                #print("elementToReplace is %s"%elementToReplace)
                 ############################################
                 #CAN BE MODIFIED TO LOOP THROUGH ONLY THE DEPENDENCY-GRAPH OF THE OBJECT. THAT WOULD MAKE IT RELATIVELY FASTER
                 ############################################
@@ -1374,6 +1331,7 @@ class Subscribe:
                     if isinstance(idVariableDict[element], (Observe, Subscribe)):
                         if idVariableDict[element].name == elementToReplace:
                             #Replace the element with the corresponding arithmetic value
+                            stackToSend.pop(i)
                             stackToSend.insert(i, idVariableDict[element].value)
                             break
                     else:

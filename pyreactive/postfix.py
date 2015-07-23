@@ -48,7 +48,7 @@ class ReversePolish:
         self.tokenize()
         #Convert from infix to postfix notation
         self.postfix()
-        
+
 
     def __repr__(self):
         return self.expression
@@ -186,11 +186,20 @@ class ReversePolish:
                     elif token == '*':
                         result = first_operand * second_operand
                     elif token == '/':
-                        result = first_operand / second_operand
+                        if second_operand == 0:
+                            raise ZeroDivisionError("integer division or modulo by zero")
+                        else:
+                            result = first_operand / second_operand
                     elif token == '//':
-                        result = first_operand // second_operand
+                        if second_operand == 0:
+                            raise ZeroDivisionError("integer division or modulo by zero")
+                        else:
+                            result = first_operand // second_operand
                     elif token == '%':
-                        result = first_operand % second_operand
+                        if second_operand == 0:
+                            raise ZeroDivisionError("integer division or modulo by zero")
+                        else:
+                            result = first_operand % second_operand
                     elif token == '**':
                         result = first_operand ** second_operand
                     #Append the result to localStack
@@ -214,7 +223,7 @@ class ReversePolish:
                     elif token == 'tan':
                         result = math.tan(unary_operand)
                     elif token == 'round':
-                        result = math.round(unary_operand)
+                        result = round(unary_operand)
                     elif token == 'ceil':
                         result = math.ceil(unary_operand)
                     elif token == 'floor':
