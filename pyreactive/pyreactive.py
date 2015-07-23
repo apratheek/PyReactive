@@ -708,7 +708,7 @@ class Observe:
         self.id = uuid.uuid4()                                    #Using ids because without them, in case of unhashable data types such as Lists, we cannot create the dependencyGraph. Hence, uuids to the rescue
         self.name = name
         self.methodParameter = methodParameter
-        idVariableDict[self.id] = self
+
         self.dependency = dependency                     #Setting up the dependency of the Observable to the passed variable
         self.underlyingValue = dependency
 
@@ -723,12 +723,12 @@ class Observe:
             if dependency.id in idVariableDict:                    #This means that value is a mutable data type belonging to List, Dict, Set, ByteArray. There is no else case here since there's no chance that a List/Set/ByteArray/Dict (BDLS) can be declared without having an entry in idVariableDict
                 #Corresponding code
 
-                self.method = method
+
                 #self.value = self.dependency            #This dependency can be taken up to the first "try" case itself and this update method can be entirely removed.
                 ##print("Setting dependencyGraph attribute")
                 dependencyGraph[dependency.id].append(self.id)                ################################### Key assignment. This is where the actual dependency is stated.
-                dependencyGraph[self.id] = []
-                self.update()                                    #This sets self.value in the update method
+
+                #self.update()                                    #This sets self.value in the update method
 
 
         except:
@@ -740,9 +740,15 @@ class Observe:
             #    pass
             #elif method is not '':
             #    raise InvalidSubscriptionError("The method %s is not applicable on native data types"%method)
+            #self.method = method
+            #dependencyGraph[self.id] = []
+            immutableList.append(self)        #Append to immutableList
+
+
+        finally:
             self.method = method
             dependencyGraph[self.id] = []
-            immutableList.append(self)        #Append to immutableList
+            idVariableDict[self.id] = self
             self.update()
 
             #if isinstance(dependency, (int, str, tuple, bool, bytes, float, complex, frozenset)):
@@ -1218,9 +1224,7 @@ class Subscribe:
         #Store a copy of postfix_stack
         localPostfixStack = self.expression_in_rpn.postfix_stack[:]
         self.subLevelList = []
-        self.id = uuid.uuid4()
-        dependencyGraph[self.id] = []
-        idVariableDict[self.id] = self
+
         #Check for other Subscribe/Observe objects inside the expression and add them to the dependency graph.
         for element in localPostfixStack:
             #Check if element in the stack is an identifier or an operator.
@@ -1304,6 +1308,10 @@ class Subscribe:
                 #pass
 
         #print("self.allDependencies is %s"%self.allDependencies)
+
+        self.id = uuid.uuid4()
+        dependencyGraph[self.id] = []
+        idVariableDict[self.id] = self
 
         for i in self.allDependencies:
             dependencyGraph[i].append(self.id)
