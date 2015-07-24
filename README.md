@@ -820,15 +820,15 @@ As of this moment, the **supported binary operators** are:
 
 The **supported unary operators** are:
 
-1. 'not' - Boolean NOT
-2. '~' - Bitwise NOT
-3. 'sin' - math.sin (Returns the sine of the value)
-4. 'cos' - math.cos (Returns the cosine of the value)
-5. 'tan' - math.tan (Returns the tan of the value)
-6. 'round' - round (Rounds to the nearest integer; does not round to a particular precision as of yet)
-7. 'ceil' - math.ceil (Rounds to the lowest integer greater than the value)
-8. 'floor' - math.floor (Rounds to the greatest integer lower than the value)
-9. 'abs' - math.fabs (Returns the absolute value)
+1. **'not'** - Boolean NOT
+2. **'~'** - Bitwise NOT
+3. **'sin'** - math.sin (Returns the sine of the value)
+4. **'cos'** - math.cos (Returns the cosine of the value)
+5. **'tan'** - math.tan (Returns the tan of the value)
+6. **'round'** - round (Rounds to the nearest integer; does not round to a particular precision as of yet)
+7. **'ceil'** - math.ceil (Rounds to the lowest integer greater than the value)
+8. **'floor'** - math.floor (Rounds to the greatest integer lower than the value)
+9. **'abs'** - math.fabs (Returns the absolute value)
 
 
 Additionally, one can subscribe to other data types such as ByteArrays, Lists, Dicts, Sets, Observe objects, Subscribe objects.
