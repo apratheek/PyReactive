@@ -1209,30 +1209,30 @@ class Subscribe:
 
     1.  'or' - Boolean OR
     2.  'and' - Boolean AND
-    3.  'not' - Boolean NOT
-    4.  '|' - Bitwise OR
-    5.  '^' - Bitwise XOR
-    6.  '^' - Bitwise AND
-    7.  '<<' - Bitwise LEFT Shift
-    8.  '>>' - Bitwise RIGHT Shift
-    9.  '+' - Addition
-    10. '-' - Subtraction
-    11. '*' - Multiplication
-    12. '/' - Division
-    13. '//' - Floor Division
-    14. '%' - Modulo Division
-    15. '~' - Bitwise NOT
-    16. '**' - Exponentiation
+    3.  '|' - Bitwise OR
+    4.  '^' - Bitwise XOR
+    5.  '^' - Bitwise AND
+    6.  '<<' - Bitwise LEFT Shift
+    7.  '>>' - Bitwise RIGHT Shift
+    8.  '+' - Addition
+    9. '-' - Subtraction
+    10. '*' - Multiplication
+    11. '/' - Division
+    12. '//' - Floor Division
+    13. '%' - Modulo Division
+    14. '**' - Exponentiation
 
-    B) Unary Operators (With the same order of precedence, in the mentioned order from Left to Right)
+    B) Unary Operators ('not' has the least precedence, '~' has the next highest precedence. The remaining are of the same order of precedence, evaluated from Left to Right)
 
-    1. 'sin' - math.sin (Returns the sine of the value)
-    2. 'cos' - math.cos (Returns the cosine of the value)
-    3. 'tan' - math.tan (Returns the tan of the value)
-    4. 'round' - round (Rounds to the nearest integer; does not round to a particular precision as of yet)
-    5. 'ceil' - math.ceil (Rounds to the lowest integer greater than the value)
-    6. 'floor' - math.floor (Rounds to the greatest integer lower than the value)
-    7. 'abs' - math.fabs (Returns the absolute value)
+    1. 'not' - Boolean NOT
+    2. '~' - Bitwise NOT
+    3. 'sin' - math.sin (Returns the sine of the value)
+    4. 'cos' - math.cos (Returns the cosine of the value)
+    5. 'tan' - math.tan (Returns the tan of the value)
+    6. 'round' - round (Rounds to the nearest integer; does not round to a particular precision as of yet)
+    7. 'ceil' - math.ceil (Rounds to the lowest integer greater than the value)
+    8. 'floor' - math.floor (Rounds to the greatest integer lower than the value)
+    9. 'abs' - math.fabs (Returns the absolute value)
 
     Example API:
 
@@ -1300,7 +1300,7 @@ class Subscribe:
                                 raise InvalidSubscriptionError("Don't really know what went wrong.")
                         #At the end of the for loop, if objFound is still False, raise an Exception
                         if objFound is False:
-                            raise NameError("%s is not a PyReactive object. Name Error. Need to initialise Observe objects with name."%element)
+                            raise NameError("%s is not a PyReactive object. Name Error. Need to initialise Observe objects with name as: >>>var_1 = Observer(object, name='var_1')"%element)
                     else:
                         #Case when isidentifier is False --> integer or float
                         pass

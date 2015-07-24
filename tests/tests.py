@@ -1,3 +1,6 @@
+"""
+    Few basic tests that check the validity of the module. Also shows sample use cases.
+"""
 import unittest
 from pyreactive import *
 

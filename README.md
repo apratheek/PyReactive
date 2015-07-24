@@ -782,25 +782,27 @@ class ObserveSocket(Observe):
 >>>b.changeTo(1000)
 InvalidSubscriptionError: changeTo method not permitted on mutables.
 ```
+
 #####Subscribe Objects
-Subscribe objects are similar to Observe objects, but the only difference is that they take in multiple operands and operators. Subscribe objects look and behave like mathematical equations. Let's look at the API and a few use cases.
 
-**API:** **SubscribeObject = Subscribe(var=(var1, var2,...), op=('+','-',....))**
+Subscribe objects are similar to Observe objects, but the difference is that they take in multiple operands and operators. Subscribe objects look and behave like mathematical equations. Let's look at the API and a few use cases.
 
-**var** is a tuple of all the operands and **op** is a tuple of all the operators (in quotes). The equation is written in **INFIX** notation, which is geek speak for normal representation of mathematical equations. The operator precedence followed is that of Python's.
+**API:** **Subscribe(expression, name='')**
+
+The expression is written in **INFIX** notation. The operator precedence followed is that of Python's. Once initialized, the expression is stored in the postfix notation, and hence parantheses and unary operators can be used.
 
 If **c** is to subscribe to **a + b**, the API is:
 ```python
->>>c = Subscribe(var=(a,b), op=('+',))
+>>>c = Subscribe('a+b')     #This also follows that a and b are the name arguments of the Observe objects a and b. Otherwise, an error is thrown
 ```
 
 If **result** is to subscribe to **a + b * 5 - c ** 0.87 + d - e/6**, the same API looks like this:
 ```python
->>>result = Subscribe(var=(a,b,5,c,0.87,d,e,6), op=('+','*','-','**','+','-','/'))
+>>>result = Subscribe('a+b*5-c**0.87+d-e/6')
 ```
 
-As of this moment, the **supported operators** are:
-> 1. **+** (Addition),
+As of this moment, the **supported binary operators** are:
+1. **+** (Addition),
 2. **-** (Subtraction),
 3. **/** (Division),
 4. __\*__ (Multiplication),
@@ -815,57 +817,107 @@ As of this moment, the **supported operators** are:
 13. **'and'** (Logical AND),
 14. **'or'** (Logical OR).
 
+The **supported unary operators** are:
+
+1. 'not' - Boolean NOT
+2. '~' - Bitwise NOT
+3. 'sin' - math.sin (Returns the sine of the value)
+4. 'cos' - math.cos (Returns the cosine of the value)
+5. 'tan' - math.tan (Returns the tan of the value)
+6. 'round' - round (Rounds to the nearest integer; does not round to a particular precision as of yet)
+7. 'ceil' - math.ceil (Rounds to the lowest integer greater than the value)
+8. 'floor' - math.floor (Rounds to the greatest integer lower than the value)
+9. 'abs' - math.fabs (Returns the absolute value)
+
 
 Additionally, one can subscribe to other data types such as ByteArrays, Lists, Dicts, Sets, Observe objects, Subscribe objects.
 
 ######Subscribe class methods
 Each Subscribe object has a few fancy methods too.
 
-**a) equation** - displays the current equation subscribed to. If the name of the variable is set, the corresponding names are shown. Otherwise, the value is displayed.
+**a) equation** - displays the current expression subscribed to.
 ```python
->>>a = Observe(9)
->>>b = Observe(10)
->>>c = Subscribe(var=(a,b), op=('<<',))
+>>>c = Subscribe('9<<10')
 >>>c
 9216
 >>>c.equation()
-' 9 << 10 '
+9<<10
 ```
 
-**b) append** - appends variables and their corresponding operators to the existing equation. The API is same as the one used during initialization.
+**b) append** - appends variables and their corresponding operators to the existing expression. The API is same as the one used during initialization.
 ```python
->>>a = Observe(12)
->>>b = Observe(16)
->>>subs = Subscribe(var=(a,b), op=('*',))
+>>>a = Observe(12, name='a')
+>>>b = Observe(16, name='b')
+>>>subs = Subscribe('a*b')
 >>>subs
 192
->>>c = Observe(20)
->>>subs.append(var=(c,), op=('-',))
+>>>c = Observe(20, name='c')
+>>>subs.append('-c')
 >>>subs
 172
 >>>subs.equation()
-' 12 * 16 - 20 '
+a*b-c
 ```
 
 **c) notify** - Similar to the **notify** method on an **Observe** object, this method too needs to be overridden to do something meaningful. The **notify** method is called every time there's a change in the underlying value of the **Subscribe** object.
 ```python
->>>a = Observe(10)
->>>b = Observe(11)
+>>>a = Observe(10, name='a')
+>>>b = Observe(11, name='b')
 >>>class SubNotify(Subscribe):
     def notify(self):
         if self.value > 23:
-            print("Value hit the upper limit!")
->>>c = SubNotify(var=(a,b), op=('+',))
+            print("%s hit the upper limit!"%self.name)
+>>>c = SubNotify('a+b', name='c')
 >>>a.changeTo(11)
 >>>b.changeTo(12)
 >>>a.changeTo(12)
-Value hit the upper limit!
+c hit the upper limit!
 >>>
 ```
 
-#####Known Issues
+######Example Subscribe API
 
-#####v0.2.0 has resolved this issue. Support for deep Lists, Dicts, ByteArrays, Sets, Observe objects has been introduced. This issue still persists in all versions before v0.2.0
+**Simple arithmetic**
+```python
+>>>a = Observe(5, name='a')
+>>>b = Observe(8, name='b')
+>>>c = Observe(25, name='c')
+>>>sub = Subscribe('a+b*c-c/(a*b)')
+>>>sub.value
+204.375
+>>>c.changeTo(15)
+>>>sub.value
+124.625
+>>>sub.append('-ceil(b/a)+floor(a/b)')
+>>>sub.value
+122.625
+```
+
+**Trigonometric equations**
+```python
+>>>pi = Observe(math.pi, name='pi')
+>>>alpha = Observe(2, name='alpha')
+>>>beta = Observe(3, name='beta')
+>>>gamma = Observe(4, name='gamma')
+>>>sub = Subscribe('sin(pi/alpha) + cos(pi/beta) + tan(pi/gamma)')
+>>>sub.value
+2.5
+>>>gamma.changeTo(6)
+>>>sub.value
+2.0773502691896257
+>>>sub.name = 'sub'
+>>>rounded = Subscribe('round(sub)')
+>>>rounded.value
+2
+>>>ceiled = Subscribe('ceil(sub)')
+>>>ceiled.value
+3
+>>>floored = Subscribe('floor(sub)')
+>>>floored.value
+2
+```
+
+#####Known Issues
 
 a)
 ```python
@@ -880,7 +932,13 @@ a)
 >>>c
 {1: [1,3,2,9]}
 ```
-Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding notify method of c wouldn't work in this case. Will issue an update very soon.
+Although **c** works as expected, the change isn't triggered in c because of the change in b. So, overriding notify method of c wouldn't work in this case.
+**v0.2.0 has resolved issue a). Support for deep Lists, Dicts, ByteArrays, Sets, Observe objects has been introduced. This issue still persists in all versions <= v0.1.6**
+
+b) If an error occurs when variables are being updated, then they go out of sync. As long as no errors are thrown, the module does what it is told to. A workaround could be to isolate each updation, try to update, and commit the update when there are no errors. Will see to it in the next version.
+
+c) There is no way to delete PyReactive objects as of now. Using **del variableName** might remove the variable from the environment, but it does not remove the dependencies. Will provide an API for deletion in the next update.
+
 
 ######Major Changes
 
@@ -912,7 +970,11 @@ Updated 4
 ```
 In the above example, the notify method on **a** is called only when the **max** value in the List changes. Similarly, the notify method on **b** is called only when the **min** value in the List changes. In versions prior to 0.2.3, the notify method was called irrespective of whether its value changed. This has been altered so that no unnecessary function calls are made.
 
+- As of v0.3.0, the Subscribe API has been altered to make it intuitive. Now accepts infix expressions as strings, parses and stores them as postfix expressions. Hence, unary, binary operators and parantheses can now be used.
+
 ######Change log
+
+**v0.3.0** - Subscribe API has been revamped. It is now a lot more intuitive and supports generic mathematical expressions. All infix expressions are parsed and stored as postfix expressions, and hence, parantheses and unary operators are also supported. The current unary operators which are supported are sin, cos, tan, abs, floor, ceil, round. Also, the values are updated using map instead of for loops, and hence, should generally be faster (Not benchmarked, though).
 
 **v0.2.3** - Notify method is now silent in case there's no change in the value of the Observe object. It is now called only when there's an actual change to the object. Also, there's a change in the API in case of Observe objects of Lists/ByteArrays in the 'slice' method. Does not accept slice object now. Rather, accepts a tuple (start, end, step), and this tuple could also consist of other Observe objects (01/07/15)
 
