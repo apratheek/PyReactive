@@ -300,20 +300,44 @@ class PyReactiveTests(unittest.TestCase):
 
 ########################################################################################################
 
-    #TESTS FOR OBSERVE
+    #TESTS FOR SUBSCRIBE
     def test_basic_subscribe(self):
         #Test 16
-        a = Observe(5)
-        b = Observe(8)
-        c = Observe(25)
+        a = Observe(5, name='a')
+        b = Observe(8, name='b')
+        c = Observe(25, name='c')
 
-        sub = Subscribe(var=(a, b, c), op=('*', '%'))
+        sub = Subscribe('a+b*c-c/(a*b)')
 
-        self.assertEqual(sub.value, 15)
+        self.assertEqual(sub.value, 204.375)
 
-        a.changeTo(50)
+        c.changeTo(15)
 
-        self.assertEqual(sub.value, 0)
+        self.assertEqual(sub.value, 124.625)
+
+        #Test the append method
+        sub.append('-ceil(b/a)+floor(a/b)')
+        self.assertEqual(sub.value, 122.625)
+
+    def test_subscribe_unary(self):
+        #Test 17
+        pi = Observe(math.pi, name='pi')
+        alpha = Observe(2, name='alpha')
+        beta = Observe(3, name='beta')
+        gamma = Observe(4, name='gamma')
+
+        sub = Subscribe('sin(pi/alpha) + cos(pi/beta) + tan(pi/gamma)')
+        self.assertEqual(sub.value, 2.5)
+
+        gamma.changeTo(6)
+        self.assertEqual(sub.value, 2.0773502691896257)
+        sub.name = 'sub'
+        rounded = Subscribe('round(sub)')
+        self.assertEqual(rounded.value, 2)
+        ceiled = Subscribe('ceil(sub)')
+        self.assertEqual(ceiled.value, 3)
+        floored = Subscribe('floor(sub)')
+        self.assertEqual(floored.value, 2)
 
 if __name__ == '__main__':
     print("\nVersion is %s"%pyreactive.version())
