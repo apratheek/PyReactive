@@ -60,30 +60,30 @@ From v0.3.0, the Subscribe API has changed. The new API is far simpler and intui
 
         Subscribe(expression, name='')
 
->>>eqn1 = Subscribe('1+2/3-(9/8)+round(7/6)')
+    >>>eqn1 = Subscribe('1+2/3-(9/8)+round(7/6)')
 
     While subscribing to Observe objects, the latter need to have a name when initialized or the name can be set later on. Otherwise, the subscription cannot be initialized and will throw an exception.
 
->>>a = Observe(2, name='a')     #>>>alpha = Observe(2, name='a') would also work.
->>>b = Observe(3, name='b')
->>>pi = Observe(math.pi, name='pi')     #imports math automatically as it is used behind the scenes
->>>c = Observe(4, name='c')
->>> eqn = Subscribe('a+b/2-c/3+sin(pi/a)')
->>>eqn
-3.166666666666667
->>>a.changeTo(-1)
->>>eqn
--0.8333333333333334
->>>c.changeTo(9)
->>>eqn
--2.5
->>>eqn.equation()       #Display the current equation
-a+b/2-c/3+sin(pi/a)
->>>eqn.append('-cos(2*pi/a**2)+ceil(a/b)')          #Extend the equation with the new expression
->>>eqn
--3.5
->>>eqn.equation()
-a+b/2-c/3+sin(pi/a)-cos(2*pi/a**2)+ceil(a/b)
+    >>>a = Observe(2, name='a')     #>>>alpha = Observe(2, name='a') would also work.
+    >>>b = Observe(3, name='b')
+    >>>pi = Observe(math.pi, name='pi')     #imports math automatically as it is used behind the scenes
+    >>>c = Observe(4, name='c')
+    >>>eqn = Subscribe('a+b/2-c/3+sin(pi/a)')
+    >>>eqn
+    3.166666666666667
+    >>>a.changeTo(-1)
+    >>>eqn
+    -0.8333333333333334
+    >>>c.changeTo(9)
+    >>>eqn
+    -2.5
+    >>>eqn.equation()       #Display the current equation
+    a+b/2-c/3+sin(pi/a)
+    >>>eqn.append('-cos(2*pi/a**2)+ceil(a/b)')          #Extend the equation with the new expression
+    >>>eqn
+    -3.5
+    >>>eqn.equation()
+    a+b/2-c/3+sin(pi/a)-cos(2*pi/a**2)+ceil(a/b)
 
 
 Methods on Subscribe
@@ -103,7 +103,10 @@ Methods on Subscribe
 
 Change log:
 -----------
-**v0.3.0** - Subscribe API has been revamped. It is now a lot more intuitive and supports generic mathematical expressions. All infix expressions are parsed and stored as postfix expressions, and hence, parantheses and unary operators are also supported. The current unary operators which are supported are sin, cos, tan, abs, floor, ceil, round. Also, the values are updated using map instead of for loops, and hence, should generally be faster (Not benchmarked, though).
+
+**v0.3.2** - Updated documentation (24/07/15)
+
+**v0.3.0** - Subscribe API has been revamped. It is now a lot more intuitive and supports generic mathematical expressions. All infix expressions are parsed and stored as postfix expressions, and hence, parantheses and unary operators are also supported. The current unary operators which are supported are sin, cos, tan, abs, floor, ceil, round. Also, the values are updated using map instead of for loops, and hence, should generally be faster (Not benchmarked, though) (24/07/15)
 
 **v0.2.3** - Notify method is now silent in case there's no change in the value of the Observe object. It is now called only when there's an actual change to the object. Also, there's a change in the API in case of Observe objects of Lists/ByteArrays in the 'slice' method. Does not accept slice object now. Rather, accepts a tuple (start, end, step), and this tuple could also consist of other Observe objects (01/07/15)
 
