@@ -864,9 +864,9 @@ a*b-c
 >>>a = Observe(10, name='a')
 >>>b = Observe(11, name='b')
 >>>class SubNotify(Subscribe):
-    def notify(self):
-        if self.value > 23:
-            print("%s hit the upper limit!"%self.name)
+...    def notify(self):
+...        if self.value > 23:
+...            print("%s hit the upper limit!"%self.name)
 >>>c = SubNotify('a+b', name='c')
 >>>a.changeTo(11)
 >>>b.changeTo(12)
